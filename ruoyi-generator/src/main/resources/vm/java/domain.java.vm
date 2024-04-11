@@ -1,0 +1,71 @@
+package ${packageName}.domain;
+
+#foreach ($import in $importList)
+import ${import};
+#end
+import com.ruoyi.common.annotation.Excel;
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+#if($table.crud || $table.sub)
+import com.ruoyi.common.core.domain.BaseEntity;
+#elseif($table.tree)
+import com.ruoyi.common.core.domain.TreeEntity;
+#end
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.experimental.Accessors;
+
+/**
+ * ${functionName}对象 ${tableName}
+ *
+ * @author ${author}
+ * @date ${datetime}
+ */
+#if($table.crud || $table.sub)
+#set($Entity="BaseEntity")
+#elseif($table.tree)
+#set($Entity="TreeEntity")
+#end
+@Data
+@Accessors(chain = true)
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class ${ClassName} extends ${Entity} {
+
+#foreach ($column in $columns)
+#if(!$table.isSuperColumn($column.javaField))
+    /**
+     * $column.columnComment
+     */
+#if($column.list)
+#set($parentheseIndex=$column.columnComment.indexOf("（"))
+#if($parentheseIndex != -1)
+#set($comment=$column.columnComment.substring(0, $parentheseIndex))
+#else
+#set($comment=$column.columnComment)
+#end
+#if($parentheseIndex != -1)
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+#elseif($column.javaType == 'Date')
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "${comment}", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
+#else
+    @Excel(name = "${comment}")
+#end
+#end
+#if($column.javaField == 'deleteStatus')
+    @TableField(fill = FieldFill.INSERT)
+#end
+    private $column.javaType $column.javaField;
+
+#end
+#end
+#if($table.sub)
+    /**
+     * $table.subTable.functionName信息
+     */
+    private List<${subClassName}> ${subclassName}List;
+
+#end
+}

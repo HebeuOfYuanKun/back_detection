@@ -1,0 +1,28 @@
+package ${packageName}.mapper;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import ${packageName}.domain.${ClassName};
+import ${packageName}.vo.${ClassName}Vo;
+#if($table.sub)
+import ${packageName}.domain.${subClassName};
+#end
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+/**
+ * ${functionName}Mapper接口
+ *
+ * @author ${author}
+ * @date ${datetime}
+ */
+public interface ${ClassName}Mapper extends BaseMapper<${ClassName}> {
+
+    Page<${ClassName}Vo> queryList(Page<?> page, @Param("entity") ${ClassName}Vo entity);
+
+    List<${ClassName}Vo> queryList(@Param("entity") ${ClassName}Vo entity);
+
+    ${ClassName}Vo queryById(@Param("id") ${pkColumn.javaType} ${pkColumn.javaField});
+
+}

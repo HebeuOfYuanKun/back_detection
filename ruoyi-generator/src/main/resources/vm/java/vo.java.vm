@@ -1,0 +1,24 @@
+package ${packageName}.vo;
+
+#foreach ($import in $importList)
+import ${import};
+#end
+import ${packageName}.domain.${ClassName};
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import lombok.experimental.Accessors;
+
+/**
+ * ${functionName}Vo对象 ${tableName}
+ *
+ * @author ${author}
+ * @date ${datetime}
+ */
+@Data
+@Accessors(chain = true)
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class ${ClassName}Vo extends ${ClassName} {
+
+}

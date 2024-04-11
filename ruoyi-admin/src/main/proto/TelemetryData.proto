@@ -1,0 +1,55 @@
+syntax = "proto3";//声明proto语法版本
+
+package com.ruoyi.web.pb;//定义该类生成的包位置
+option java_multiple_files = true;//是否再使用protobuf编译工具的时候将该proto文件编译成一个类;
+
+
+message SearchInfo{
+  int32 num = 1;//数字
+  string uuid = 2;//字符串
+  Sex sex = 3;//枚举
+  PosInfo baseInfo = 4;//对象
+  repeated Hobby hobbies = 5;//集合
+}
+message TelemetryData{
+  double lng=1;//经度
+  double lat=2;//纬度
+  float altitude=3;//海拔高度(椭球高)(单位:米)
+  float ultrasonic=4;//相对高度(单位:米)
+  float pitch=5;//俯仰角
+  float roll=6;//横滚角
+  float yaw=7;//偏航角
+  float airspeed=8;//空速(单位:米/秒)
+  float velocity=9;//地速(单位:米/秒)
+  uint64 timestamp=10;//时间戳
+  float ptpitch=11;//载荷俯仰角
+  float ptroll=12;//载荷横滚角
+  float ptyaw=13;//载荷航向角
+  float zoomfactor=14;//载荷当前倍数
+  string boxSn=15;//云盒子编号
+  string batteryPower=16;//电池电量,多个电池以下划线分割,如：80_60
+  uint32 satelliteCount=17;//卫星计数
+  uint64 taskId=18;//任务编号
+  double rtkLng=19;//rtk经度
+  double rtkLat=20;//rtk纬度
+  float rtkHFSL=21;//rtk海拔高度(平均海平面高度)(单位:米)
+  uint32 rtkPositionInfo=22;//rtk状态(值为50时[rtk数据fix固定解]，rtk的经纬度及海拔高度值可用)
+  uint32 airFlyTimes=23;//当前架次飞行时长(单位:秒)
+  float airFlyDistance=24;//当前架次飞行实际距离(单位:米)
+  string uavSn=25;//无人机编号
+  string uavModel=26;//无人机型号
+  float homeRange=27;//距降落点距离(单位:米)
+  uint32 flightMode=28;//飞行模式：1=手动控制模式，2=姿态模式，6=MODE_P_GPS，9=热点任务中，11=自动起飞中，12=降落中，14=航线中，15=返航中，17=虚拟摇杆控制中，33=强制降落中，41=解锁电机准备起飞中
+}
+message PosInfo{
+  string address = 1;
+  string desc = 2;
+}
+message Hobby{
+  string name = 1;
+  string desc = 2;
+}
+enum Sex{
+  BOY = 0;
+  GIRL = 1;
+}
