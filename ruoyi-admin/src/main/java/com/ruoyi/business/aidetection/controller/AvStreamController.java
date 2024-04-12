@@ -33,6 +33,14 @@ public class AvStreamController {
         objectMap.put("mediaServerState",zlMediaKit.isMediaServerState());
         return AjaxResult.success(objectMap);
     }
+    @GetMapping("/listAll")
+    @PreAuthorize("@ss.hasPermi('business:stream:list')")
+    public AjaxResult getAllAvOnlineStream() {
+        Map<String,Object> objectMap=new HashMap<>();
+        objectMap.put("mediaList",zlMediaKit.getMediaList());
+        objectMap.put("mediaServerState",zlMediaKit.isMediaServerState());
+        return AjaxResult.success(objectMap);
+    }
     @GetMapping("/flvurl")
     @PreAuthorize("@ss.hasPermi('business:stream:flvurl')")
     public AjaxResult getAvFlvUrl(String app,String name) {
