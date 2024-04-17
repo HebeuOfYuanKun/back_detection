@@ -74,6 +74,8 @@ public class AvObjectController extends BaseController {
         return toAjax(avObjectService.save(entity));
     }
 
+
+
     @ApiOperation("修改识别物体")
     @PreAuthorize("@ss.hasPermi('business:object:edit')")
     @Log(title = "识别物体", businessType = BusinessType.UPDATE)

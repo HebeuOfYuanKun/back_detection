@@ -148,8 +148,8 @@ public class Analyzer {
         return map;
     }
 
-    public Map<String,Object> controlAdd(String code, String algorithmCode, String objectCode, int minInterval, double classThresh, double overlapThresh, String streamUrl, boolean pushStream, String pushStreamUrl) {
-        boolean state = false;
+    public Map<String,Object> controlAdd(String code, String algorithmCode, String objectCode, Long minInterval, double classThresh, double overlapThresh, String streamUrl,Long pushStream, String pushStreamUrl) {
+        int state_code = 500;
         String msg = "error";
 
         try {
@@ -164,7 +164,7 @@ public class Analyzer {
             requestData.put("code", code);
             requestData.put("algorithmCode", algorithmCode);
             requestData.put("objectCode", objectCode);
-            requestData.put("minInterval", Integer.toString(minInterval));
+            requestData.put("minInterval", Long.toString(minInterval));
             requestData.put("classThresh", Double.toString(classThresh));
             requestData.put("overlapThresh", Double.toString(overlapThresh));
             requestData.put("streamUrl", streamUrl);
@@ -189,21 +189,21 @@ public class Analyzer {
                 JSONObject responseJson = new JSONObject(response.toString());
                 msg = responseJson.getString("msg");
                 if (responseJson.getInt("code") == 1000) {
-                    state = true;
+                    state_code = 200;
                 }
             } else {
-                msg = "status_code=" + responseCode;
+                msg = "state_code=" + responseCode;
             }
 
             connection.disconnect();
             analyzerServerState = true;
         } catch (Exception e) {
             analyzerServerState = false;
-            msg = e.toString();
+            msg = "视频分析器未启动，请启动！";
         }
 
         Map<String,Object> map=new HashMap<>();
-        map.put("state", state);
+        map.put("code", state_code);
         map.put("msg", msg);
         return map;
     }
@@ -251,7 +251,7 @@ public class Analyzer {
             analyzerServerState = true;
         } catch (Exception e) {
             analyzerServerState = false;
-            msg = e.toString();
+            msg = "视频分析器未启动，请启动！";
         }
 
         Map<String,Object> map=new HashMap<>();

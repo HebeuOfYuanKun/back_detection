@@ -1,5 +1,7 @@
 package com.ruoyi.business.aidetection.controller;
 
+import com.ruoyi.business.aidetection.config.Analyzer;
+import com.ruoyi.business.aidetection.config.ZLMediaKit;
 import com.ruoyi.business.aidetection.domain.AvAlarm;
 import com.ruoyi.business.aidetection.domain.AvControl;
 import com.ruoyi.business.aidetection.domain.vo.AvControlVo;
@@ -37,7 +39,11 @@ import java.util.Map;
 public class AvControlController extends BaseController {
     @Autowired
     private AvControlService avControlService;
-
+    @Autowired
+    private Analyzer analyzer;
+    @Autowired
+    private ZLMediaKit zlMediaKit;
+    
     @ApiOperation("查询control列表")
     @PreAuthorize("@ss.hasPermi('business:control:list')")
     @GetMapping("/list")
@@ -78,6 +84,29 @@ public class AvControlController extends BaseController {
     public AjaxResult add(@RequestBody AvControlVo entity) {
         return toAjax(avControlService.save(entity));
     }
+
+    @ApiOperation("加入识别")
+    @PreAuthorize("@ss.hasPermi('business:control:detection')")
+    @Log(title = "detection", businessType = BusinessType.INSERT)
+    @PostMapping("detection/{id}")
+    public Map<String, Object> addDetection(@PathVariable("id") Long id) {
+        AvControl avControlVo = avControlService.getById(id);
+        Map<String, Object> map = analyzer.controlAdd(avControlVo.getCode(), avControlVo.getAlgorithmCode(), avControlVo.getObjectCode(), avControlVo.getMinInterval(),
+                avControlVo.getClassThresh(), avControlVo.getOverlapThresh(), zlMediaKit.getRtspUrl(avControlVo.getStreamApp(), avControlVo.getStreamName()),
+                avControlVo.getPushStream(), zlMediaKit.getRtspUrl(avControlVo.getPushStreamApp(), avControlVo.getPushStreamName()));
+        return map;
+    }
+
+    @ApiOperation("取消识别")
+    @PreAuthorize("@ss.hasPermi('business:control:cancel')")
+    @Log(title = "detection", businessType = BusinessType.INSERT)
+    @DeleteMapping("detection/{id}")
+    public Map<String, Object> deleteDetection(@PathVariable("id") Long id) {
+        AvControl avControlVo = avControlService.getById(id);
+        Map<String, Object> map = analyzer.controlCancel(avControlVo.getCode());
+        return map;
+    }
+
 
     @ApiOperation("修改control")
     @PreAuthorize("@ss.hasPermi('business:control:edit')")
