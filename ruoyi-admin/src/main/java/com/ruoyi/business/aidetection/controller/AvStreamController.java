@@ -46,9 +46,9 @@ public class AvStreamController {
     public AjaxResult getAvFlvUrl(String app,String name) {
         Map<String,Object> objectMap=new HashMap<>();
         if(app==null||name==null||"".equals(app)||"".equals(name)){
-            objectMap.put("hasAdress",false);
+            objectMap.put("hasAddress",false);
         }else{
-            objectMap.put("hasAdress",true);
+            objectMap.put("hasAddress",true);
             objectMap.put("flvUrl",zlMediaKit.getFlvUrl(app,name));
         }
 

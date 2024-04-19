@@ -19,5 +19,4 @@ import lombok.experimental.Accessors;
 public class AvControlVo extends AvControl {
     private Boolean isActivated;
     private Double checkFps;
-
 }

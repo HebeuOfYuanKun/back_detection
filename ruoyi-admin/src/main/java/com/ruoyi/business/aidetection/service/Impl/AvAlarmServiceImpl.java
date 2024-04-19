@@ -3,12 +3,14 @@ package com.ruoyi.business.aidetection.service.Impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ruoyi.business.aidetection.config.ReadConfig;
 import com.ruoyi.business.aidetection.domain.AvAlarm;
 import com.ruoyi.business.aidetection.domain.vo.AvAlarmVo;
 import com.ruoyi.business.aidetection.mapper.AvAlarmMapper;
 import com.ruoyi.business.aidetection.service.AvAlarmService;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.PageUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +23,8 @@ import java.util.List;
  */
 @Service
 public class AvAlarmServiceImpl extends ServiceImpl<AvAlarmMapper, AvAlarm> implements AvAlarmService {
-
+    @Autowired
+    ReadConfig readConfig;
     @Override
     public List<AvAlarm> queryList(AvAlarmVo entity) {
 
@@ -43,9 +46,13 @@ public class AvAlarmServiceImpl extends ServiceImpl<AvAlarmMapper, AvAlarm> impl
                 }
             }
             queryWrapper.orderByDesc("create_time");
-            List<AvAlarm> unsafeInfos = baseMapper.selectList(queryWrapper);
-
-            return unsafeInfos;
+            List<AvAlarm> avAlarmList = baseMapper.selectList(queryWrapper);
+            //拼接视频和封面地址
+            for (AvAlarm avAlarm : avAlarmList) {
+                avAlarm.setImagePath(readConfig.getMediaHttpHost()+"/"+avAlarm.getImagePath());
+                avAlarm.setVideoPath(readConfig.getMediaHttpHost()+"/"+avAlarm.getVideoPath());
+            }
+            return avAlarmList;
 
 
     }

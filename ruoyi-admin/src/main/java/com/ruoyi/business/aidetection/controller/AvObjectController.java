@@ -38,7 +38,7 @@ public class AvObjectController extends BaseController {
     //@PreAuthorize("@ss.hasPermi('business:object:list')")
     @Anonymous
     @GetMapping("/list")
-    public TableDataInfo<AvObjectVo> list(AvObjectVo entity) {
+    public TableDataInfo<AvObject> list(AvObjectVo entity) {
         return avObjectService.queryList(entity);
     }
 
@@ -63,7 +63,7 @@ public class AvObjectController extends BaseController {
     @PreAuthorize("@ss.hasPermi('business:object:query')")
     @GetMapping(value = "/getInfo/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id) {
-        return AjaxResult.success("查询成功", avObjectService.queryById(id));
+        return AjaxResult.success("查询成功", avObjectService.getById(id));
     }
 
     @ApiOperation("新增识别物体")

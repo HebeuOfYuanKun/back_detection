@@ -1,5 +1,6 @@
 package com.ruoyi.business.aidetection.service.Impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.business.aidetection.domain.AvObject;
 import com.ruoyi.business.aidetection.domain.vo.AvObjectVo;
@@ -21,9 +22,13 @@ import java.util.List;
 public class AvObjectServiceImpl extends ServiceImpl<AvObjectMapper, AvObject> implements AvObjectService {
 
     @Override
-    public TableDataInfo<AvObjectVo> queryList(AvObjectVo entity) {
-
-        return PageUtils.buildDataInfo(baseMapper.queryList(PageUtils.buildPage(), entity));
+    public TableDataInfo<AvObject> queryList(AvObjectVo entity) {
+        QueryWrapper<AvObject> queryWrapper=new QueryWrapper<>();
+        if(entity.getName()!=null)
+            queryWrapper.eq("name",entity.getName());
+        if(entity.getGrade()!=null)
+            queryWrapper.eq("grade",entity.getGrade());
+        return PageUtils.buildDataInfo(baseMapper.selectPage(PageUtils.buildPage(), queryWrapper));
     }
 
     @Override

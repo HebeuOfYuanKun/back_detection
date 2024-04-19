@@ -23,7 +23,7 @@ public interface AvObjectService extends IService<AvObject> {
      * @param entity
      * @return
      */
-    TableDataInfo<AvObjectVo> queryList(AvObjectVo entity);
+    TableDataInfo<AvObject> queryList(AvObjectVo entity);
 
     /**
      * 查询全部

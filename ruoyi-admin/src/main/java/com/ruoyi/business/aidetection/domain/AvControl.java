@@ -33,12 +33,6 @@ public class AvControl extends BaseEntity {
     private Long id;
 
     /**
-     * 用户id
-     */
-    @Excel(name = "用户id")
-    private Long userId;
-
-    /**
      * 排序
      */
     @Excel(name = "排序")

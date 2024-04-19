@@ -12,6 +12,7 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.utils.ControlCodeGenerator;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -77,11 +78,18 @@ public class AvControlController extends BaseController {
         return AjaxResult.success("查询成功", avControlService.getById(id));
     }
 
+    /**
+     * 待开发保存的视频流是否推流，默认写死推流
+     */
     @ApiOperation("新增control")
     @PreAuthorize("@ss.hasPermi('business:control:add')")
     @Log(title = "control", businessType = BusinessType.INSERT)
     @PostMapping("add")
     public AjaxResult add(@RequestBody AvControlVo entity) {
+        entity.setCode(ControlCodeGenerator.genControlCode());
+        entity.setPushStreamApp("analyzer");
+        entity.setPushStreamName(entity.getCode());
+        entity.setPushStream(1L);
         return toAjax(avControlService.save(entity));
     }
 
