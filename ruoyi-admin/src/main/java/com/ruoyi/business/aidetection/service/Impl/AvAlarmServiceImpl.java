@@ -8,8 +8,6 @@ import com.ruoyi.business.aidetection.domain.AvAlarm;
 import com.ruoyi.business.aidetection.domain.vo.AvAlarmVo;
 import com.ruoyi.business.aidetection.mapper.AvAlarmMapper;
 import com.ruoyi.business.aidetection.service.AvAlarmService;
-import com.ruoyi.common.core.page.TableDataInfo;
-import com.ruoyi.common.utils.PageUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

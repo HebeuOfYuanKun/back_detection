@@ -99,9 +99,15 @@ public class AvControlController extends BaseController {
     @PostMapping("detection/{id}")
     public Map<String, Object> addDetection(@PathVariable("id") Long id) {
         AvControl avControlVo = avControlService.getById(id);
+
         Map<String, Object> map = analyzer.controlAdd(avControlVo.getCode(), avControlVo.getAlgorithmCode(), avControlVo.getObjectCode(), avControlVo.getMinInterval(),
                 avControlVo.getClassThresh(), avControlVo.getOverlapThresh(), zlMediaKit.getRtspUrl(avControlVo.getStreamApp(), avControlVo.getStreamName()),
                 avControlVo.getPushStream(), zlMediaKit.getRtspUrl(avControlVo.getPushStreamApp(), avControlVo.getPushStreamName()));
+
+        if("200".equals(map.get("code").toString()))
+            avControlVo.setState(1L);
+     avControlService.updateById(avControlVo);
+
         return map;
     }
 
@@ -112,6 +118,9 @@ public class AvControlController extends BaseController {
     public Map<String, Object> deleteDetection(@PathVariable("id") Long id) {
         AvControl avControlVo = avControlService.getById(id);
         Map<String, Object> map = analyzer.controlCancel(avControlVo.getCode());
+        if("200".equals(map.get("code").toString()))
+            avControlVo.setState(0L);
+        avControlService.updateById(avControlVo);
         return map;
     }
 

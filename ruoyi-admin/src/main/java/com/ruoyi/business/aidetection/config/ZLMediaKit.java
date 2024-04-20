@@ -147,92 +147,98 @@ public class ZLMediaKit {
                 }
                 if ((int)responseJson.get("code") == 0) {
                     List<Map<String, Object>> responseData = (List<Map<String, Object>>)responseJson.get("data");
-                    Map<String, Map<String, Map<String, Object>>> dataGroup = new HashMap<>(); // Group data by app and stream
-                    for (Map<String, Object> d : responseData) {
-                        String app = (String)d.get("app");
-                        createStamp = (Integer) d.get("createStamp");
-                        String name = (String)d.get("stream");
-                        String schema = (String)d.get("schema");
-                        String code = String.format("%s_%s", app, name);
-                        if (!dataGroup.containsKey(code)) {
-                            dataGroup.put(code, new HashMap<>());
-                        }
-                        dataGroup.get(code).put(schema, d);
-                    }
-
-                    for (Map.Entry<String, Map<String, Map<String, Object>>> entry : dataGroup.entrySet()) {
-                        List<Map<String, Object>> schemasClients = new ArrayList<>();
-                        Map<String, Object> d = null;
-                        int index = 0;
-                        for (Map.Entry<String, Map<String, Object>> schemaEntry : entry.getValue().entrySet()) {
-                            schemasClients.add(new HashMap<String, Object>() {{
-                                put("schema", schemaEntry.getKey());
-                                put("readerCount", schemaEntry.getValue().get("readerCount"));
-                            }});
-                            if (index == 0) {
-                                d = schemaEntry.getValue();
+                    //System.out.println(responseData);
+                    if(responseData != null && responseData.size() > 0) {//无视频流，防止报空指针错误
+                        Map<String, Map<String, Map<String, Object>>> dataGroup = new HashMap<>(); // Group data by app and stream
+                        for (Map<String, Object> d : responseData) {
+                            String app = (String)d.get("app");
+                            createStamp = (Integer) d.get("createStamp");
+                            String name = (String)d.get("stream");
+                            String schema = (String)d.get("schema");
+                            String code = String.format("%s_%s", app, name);
+                            if (!dataGroup.containsKey(code)) {
+                                dataGroup.put(code, new HashMap<>());
                             }
-                            index++;
+                            dataGroup.get(code).put(schema, d);
                         }
 
-                        if (d != null) {
+                        for (Map.Entry<String, Map<String, Map<String, Object>>> entry : dataGroup.entrySet())
+                        {
+                            List<Map<String, Object>> schemasClients = new ArrayList<>();
+                            Map<String, Object> d = null;
+                            int index = 0;
+                            for (Map.Entry<String, Map<String, Object>> schemaEntry : entry.getValue().entrySet()) {
+                                schemasClients.add(new HashMap<String, Object>() {{
+                                    put("schema", schemaEntry.getKey());
+                                    put("readerCount", schemaEntry.getValue().get("readerCount"));
+                                }});
+                                if (index == 0) {
+                                    d = schemaEntry.getValue();
+                                }
+                                index++;
+                            }
 
-                            List<Map<String, Object>> tracks = (List<Map<String, Object>>)d.get("tracks");
-                            if (tracks != null) {
-                                for (Map<String, Object> track : tracks) {
-                                    int codecType = (int)track.get("codec_type");
-                                    if (codecType == 0) { // Video
-                                        Double fpsDouble = (Double)track.get("fps");
-                                        fps = fpsDouble.intValue();
-                                        int height = (int)track.get("height");
-                                        int width = (int)track.get("width");
-                                        videoStr = String.format("%s/%d/%dx%d", track.get("codec_id_name"), fps, width, height);
-                                    } else if (codecType == 1) { // Audio
-                                        int channels = (int)track.get("channels");
-                                        int sampleBit = (int)track.get("sample_bit");
-                                        int sampleRate = (int)track.get("sample_rate");
-                                        audioStr = String.format("%s/%d/%d/%d", track.get("codec_id_name"), channels, sampleRate, sampleBit);
+                            if (d != null) {
+
+                                List<Map<String, Object>> tracks = (List<Map<String, Object>>)d.get("tracks");
+                                if (tracks != null) {
+                                    for (Map<String, Object> track : tracks) {
+                                        int codecType = (int)track.get("codec_type");
+                                        if (codecType == 0) { // Video
+                                            Double fpsDouble = (Double)track.get("fps");
+                                            fps = fpsDouble.intValue();
+                                            int height = (int)track.get("height");
+                                            int width = (int)track.get("width");
+                                            videoStr = String.format("%s/%d/%dx%d", track.get("codec_id_name"), fps, width, height);
+                                        } else if (codecType == 1) { // Audio
+                                            int channels = (int)track.get("channels");
+                                            int sampleBit = (int)track.get("sample_bit");
+                                            int sampleRate = (int)track.get("sample_rate");
+                                            audioStr = String.format("%s/%d/%d/%d", track.get("codec_id_name"), channels, sampleRate, sampleBit);
+                                        }
                                     }
                                 }
+
+                                String produceSpeed = this.byteFormat((int)d.get("bytesSpeed"));
+                                String app = (String)d.get("app");
+                                String name = (String)d.get("stream");
+
+                                String finalVideoStr = videoStr;
+                                String finalAudioStr = audioStr;
+                                Map<String, Object> finalD = d;
+
+                                Integer finalFps = fps;
+                                Integer finalCreateStamp = createStamp;
+                                data.add(new HashMap<String, Object>() {{
+                                    put("active", true);
+                                    put("code", entry.getKey());
+                                    put("app", app);
+                                    put("name", name);
+                                    put("fps", finalFps);
+
+                                    put("createStamp", finalCreateStamp);
+                                    put("produce_speed", produceSpeed);
+                                    put("video", finalVideoStr);
+                                    put("audio", finalAudioStr);
+                                    put("originUrl", finalD.get("originUrl"));
+                                    put("originType", finalD.get("originType"));
+                                    put("originTypeStr", finalD.get("originTypeStr"));
+                                    put("clients", finalD.get("totalReaderCount"));
+                                    put("schemas_clients", schemasClients);
+                                    put("flvUrl", getFlvUrl(app, name));
+                                    put("hlsUrl", getHlsUrl(app, name));
+                                }});
                             }
-
-                            String produceSpeed = this.byteFormat((int)d.get("bytesSpeed"));
-                            String app = (String)d.get("app");
-                            String name = (String)d.get("stream");
-
-                            String finalVideoStr = videoStr;
-                            String finalAudioStr = audioStr;
-                            Map<String, Object> finalD = d;
-
-                            Integer finalFps = fps;
-                            Integer finalCreateStamp = createStamp;
-                            data.add(new HashMap<String, Object>() {{
-                                put("active", true);
-                                put("code", entry.getKey());
-                                put("app", app);
-                                put("name", name);
-                                put("fps", finalFps);
-
-                                put("createStamp", finalCreateStamp);
-                                put("produce_speed", produceSpeed);
-                                put("video", finalVideoStr);
-                                put("audio", finalAudioStr);
-                                put("originUrl", finalD.get("originUrl"));
-                                put("originType", finalD.get("originType"));
-                                put("originTypeStr", finalD.get("originTypeStr"));
-                                put("clients", finalD.get("totalReaderCount"));
-                                put("schemas_clients", schemasClients);
-                                put("flvUrl", getFlvUrl(app, name));
-                                put("hlsUrl", getHlsUrl(app, name));
-                            }});
                         }
                     }
+
                 }
             } else {
                 System.out.printf("%s error:status=%d\n", this.getClass().getName(), response.code());
             }
             this.mediaServerState = true;
         } catch (Exception e) {
+            e.printStackTrace();
             this.mediaServerState = false;
             System.out.println(e);
 

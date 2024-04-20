@@ -34,7 +34,7 @@ public class ReadConfig {
         String filename = Paths.get(baseDirLastDir, "config.json").toString();*/
 
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("D:/BaiduNetdiskDownload/download/VideoAnalyzer_v3/BXC_VideoAnalyzer_v3.1.1/config.json")) ;
+            BufferedReader reader = new BufferedReader(new FileReader("D:/BaiduNetdiskDownload/download/VideoAnalyzer_v3/BXC_VideoAnalyzer_v3.2/config.json")) ;
             String line;
             StringBuilder content = new StringBuilder();
             while ((line = reader.readLine()) != null) {

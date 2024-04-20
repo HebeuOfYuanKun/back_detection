@@ -53,6 +53,7 @@ public class AvControlServiceImpl extends ServiceImpl<AvControlMapper, AvControl
             }
             if(mediaServerState){
                 Map<String,Object> mapControls=analyzer.controls();
+                System.out.println(analyzer);
                 analyzerServerState = analyzer.isAnalyzerServerState();
                 //System.out.println(mapControls);
                 for (int i = 0; i < ((JSONArray)mapControls.get("data")).length(); i++) {

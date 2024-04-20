@@ -82,6 +82,7 @@ public class Analyzer {
             analyzerServerState = true;
         } catch (Exception e) {
             analyzerServerState = false;
+            e.printStackTrace();
             msg = e.toString();
         }
         Map<String,Object> map=new HashMap<>();
@@ -166,7 +167,7 @@ public class Analyzer {
             requestData.put("classThresh", Double.toString(classThresh));
             requestData.put("overlapThresh", Double.toString(overlapThresh));
             requestData.put("streamUrl", streamUrl);
-            requestData.put("pushStream", pushStream);
+            requestData.put("pushStream", pushStream==1);
             requestData.put("pushStreamUrl", pushStreamUrl);
 
             OutputStream outputStream = connection.getOutputStream();
@@ -196,6 +197,7 @@ public class Analyzer {
             connection.disconnect();
             analyzerServerState = true;
         } catch (Exception e) {
+            e.printStackTrace();
             analyzerServerState = false;
             msg = "视频分析器未启动，请启动！";
         }
@@ -207,7 +209,7 @@ public class Analyzer {
     }
 
     public Map<String,Object> controlCancel(String code) {
-        boolean state = false;
+        int state_code = 500;
         String msg = "error";
 
         try {
@@ -239,7 +241,7 @@ public class Analyzer {
                 JSONObject responseJson = new JSONObject(response.toString());
                 msg = responseJson.getString("msg");
                 if (responseJson.getInt("code") == 1000) {
-                    state = true;
+                    state_code = 200;
                 }
             } else {
                 msg = "status_code=" + responseCode;
@@ -253,7 +255,7 @@ public class Analyzer {
         }
 
         Map<String,Object> map=new HashMap<>();
-        map.put("state", state);
+        map.put("code", state_code);
         map.put("msg", msg);
         return map;
     }
