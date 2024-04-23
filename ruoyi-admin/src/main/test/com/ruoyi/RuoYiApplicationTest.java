@@ -7,6 +7,7 @@ import com.alibaba.fastjson2.JSON;
 import com.ruoyi.business.aidetection.config.Analyzer;
 import com.ruoyi.business.aidetection.config.ZLMediaKit;
 import com.ruoyi.business.aidetection.service.Impl.AvControlServiceImpl;
+import com.ruoyi.framework.websocket.WebSocketUsers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,7 +35,9 @@ class RuoYiApplicationTest {
     @Test
     public void testAnalyzer() {
         //System.out.println(analyzer.controls());
-        System.out.println(avControlService.queryList(null));
+
+        //WebSocketUsers.sendMessageToUsersByText(String.valueOf(99999));
+        //System.out.println(avControlService.queryList(null));
     }
 
     @Test

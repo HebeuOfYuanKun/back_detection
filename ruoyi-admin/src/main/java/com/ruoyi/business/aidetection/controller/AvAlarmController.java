@@ -1,18 +1,24 @@
 package com.ruoyi.business.aidetection.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ruoyi.business.aidetection.domain.AvAlarm;
+import com.ruoyi.business.aidetection.domain.AvObject;
 import com.ruoyi.business.aidetection.domain.vo.AvAlarmVo;
 import com.ruoyi.business.aidetection.service.AvAlarmService;
+import com.ruoyi.business.aidetection.service.AvObjectService;
+import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 
+import com.ruoyi.framework.websocket.WebSocketUsers;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.core.page.TableDataInfo;
@@ -34,6 +40,8 @@ import java.util.List;
 public class AvAlarmController extends BaseController {
     @Autowired
     private AvAlarmService avAlarmService;
+    @Autowired
+    private AvObjectService avObjectService;
 
     @ApiOperation("查询alarm列表")
     @PreAuthorize("@ss.hasPermi('business:alarm:list')")
@@ -69,10 +77,17 @@ public class AvAlarmController extends BaseController {
     }
 
     @ApiOperation("新增alarm")
-    @PreAuthorize("@ss.hasPermi('business:alarm:add')")
+    @Anonymous
     @Log(title = "alarm", businessType = BusinessType.INSERT)
     @PostMapping("add")
     public AjaxResult add(@RequestBody AvAlarmVo entity) {
+        QueryWrapper<AvObject> queryWrapper=new QueryWrapper<>();
+        queryWrapper.eq("code",entity.getCategory());
+        AvObject avObject = avObjectService.getOne(queryWrapper);
+        entity.setDesc(avObject.getTipMessage());
+        entity.setGrade(avObject.getGrade());
+        entity.setState(1L);
+        WebSocketUsers.sendMessageToUsersByText(String.valueOf(entity));
         return toAjax(avAlarmService.save(entity));
     }
 
