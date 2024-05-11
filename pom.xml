@@ -9,7 +9,7 @@
     <version>3.8.3</version>
 
     <name>ruoyi-vue-service</name>
-    <description>若依MybatisPlus纯净版</description>
+    <description>无人机智能巡视系统</description>
 
     <properties>
         <ruoyi.version>3.8.3</ruoyi.version>
