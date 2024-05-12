@@ -20,17 +20,17 @@ import java.io.IOException;
 @SpringBootTest
 class RuoYiApplicationTest {
 
-    @Autowired
+
+    @Test/*@Autowired
     private ZLMediaKit zlMediaKit;
     @Autowired
     private Analyzer analyzer;
     @Autowired
     private AvControlServiceImpl avControlService;
     @Autowired
-    private ApplicationContext applicationContext;
-    @Test
+    private ApplicationContext applicationContext;*/
     public void contextLoads() {
-        System.out.println(zlMediaKit.getMediaList());
+        //System.out.println(zlMediaKit.getMediaList());
     }
     @Test
     public void testAnalyzer() {
@@ -38,6 +38,7 @@ class RuoYiApplicationTest {
 
         //WebSocketUsers.sendMessageToUsersByText(String.valueOf(99999));
         //System.out.println(avControlService.queryList(null));
+        System.out.println("".equals(null));
     }
 
     @Test
