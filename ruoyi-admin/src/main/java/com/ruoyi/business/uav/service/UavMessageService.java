@@ -26,7 +26,7 @@ public interface UavMessageService extends IService<UavMessage> {
      * @param entity
      * @return
      */
-    TableDataInfo<UavMessageVo> queryList(UavMessageVo entity);
+    List<UavMessage> queryList(UavMessageVo entity);
 
     /**
      * 查询全部
@@ -51,5 +51,9 @@ public interface UavMessageService extends IService<UavMessage> {
      * @return
      */
     UavMessage queryByTopic(String topic);
+
+    boolean add(UavMessageVo entity) throws IllegalArgumentException;
+
+    boolean editById(UavMessageVo entity) throws IllegalArgumentException;
 }
 

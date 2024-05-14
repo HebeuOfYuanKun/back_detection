@@ -26,6 +26,12 @@ public class UavMessage extends BaseEntity {
     private Long id;
 
     /**
+     * 订阅信息名称
+     */
+    @Excel(name = "订阅信息名称")
+    private String messageName;
+
+    /**
      * 订阅信息主题
      */
     @Excel(name = "订阅信息主题")

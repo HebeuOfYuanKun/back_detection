@@ -67,4 +67,11 @@ public interface UavConfigService extends IService<UavConfig> {
      * @return
      */
     boolean connectUav(Long id) throws Exception;
+    /**
+     * 取消连接
+     *
+     * @param id
+     * @return
+     */
+    boolean disconnectUav(Long id) throws Exception;
 }

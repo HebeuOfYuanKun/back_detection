@@ -58,7 +58,7 @@ public class AvControlController extends BaseController {
     @ApiOperation("查询control所有列表")
     @GetMapping("/listAll")
     public AjaxResult listAll(AvControlVo entity) {
-        return AjaxResult.success("查询成功", avControlService.queryAll(entity));
+        return AjaxResult.success("查询成功", avControlService.list());
     }
 
     @ApiOperation("导出control列表")

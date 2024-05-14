@@ -26,6 +26,13 @@ public class UavConfig extends BaseEntity {
      */
     private Long id;
 
+
+    /**
+     * 设备编号
+     */
+    @Excel(name = "设备编号")
+    private String uavId;
+
     /**
      * 连接id
      */
@@ -43,6 +50,24 @@ public class UavConfig extends BaseEntity {
      */
     @Excel(name = "无人机图片")
     private String uavImage;
+
+    /**
+     * 无人机识别状态
+     */
+    @Excel(name = "无人机识别状态")
+    private Integer uavAiState;
+
+    /**
+     * 无人机是否开机 1开机，0关机，2未知
+     */
+    @Excel(name = "无人机是否开机 1开机，0关机，2未知")
+    private Integer uavState;
+
+    /**
+     * 无人机默认开启的布控ID
+     */
+    @Excel(name = "无人机默认开启的布控ID")
+    private String uavControlId;
 
     /**
      * 连接用户名

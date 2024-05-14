@@ -2,6 +2,10 @@ package com.ruoyi.business.uav.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ruoyi.business.aidetection.config.Analyzer;
+import com.ruoyi.business.aidetection.config.ZLMediaKit;
+import com.ruoyi.business.aidetection.domain.AvControl;
+import com.ruoyi.business.aidetection.service.AvControlService;
 import com.ruoyi.business.uav.config.MqttConsumerConfig;
 import com.ruoyi.business.uav.domain.UavConfig;
 import com.ruoyi.business.uav.domain.UavConfigMessage;
@@ -20,7 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author：yuankun
@@ -37,6 +43,15 @@ public class UavConfigServiceImpl extends ServiceImpl<UavConfigMapper, UavConfig
     private UavConfigMessageService uavConfigMessageService;
     @Autowired
     private UavMessageService uavMessageService;
+    @Autowired
+    private MqttConsumerConfig mqttConsumerConfig;
+
+    @Autowired
+    private AvControlService avControlService;
+    @Autowired
+    private Analyzer analyzer;
+    @Autowired
+    private ZLMediaKit zlMediaKit;
 
 
     @Override
@@ -67,6 +82,18 @@ public class UavConfigServiceImpl extends ServiceImpl<UavConfigMapper, UavConfig
             if(messageTopic.size() > 0)
                 uavConfigVo.setMessageTopic(String.join(",", messageTopic));
             uavConfigVoList.add(uavConfigVo);
+            //查询无人机的布控信息
+            String[] split = uavConfigVo.getUavControlId().split(",");
+            List<String> ControlName = new ArrayList<>();
+            for (String ControlId:split) {
+                AvControl avControl = avControlService.getById(ControlId);
+                if(avControl!=null){
+                    ControlName.add(avControl.getName());
+                }
+            }
+            if(ControlName.size() > 0){
+                uavConfigVo.setUavControlName(String.join(",", ControlName));
+            }
 
         }
         return uavConfigVoList;
@@ -109,7 +136,13 @@ public class UavConfigServiceImpl extends ServiceImpl<UavConfigMapper, UavConfig
         baseMapper.updateById(uavConfig);
         //删除所有的关联表信息
         uavConfigMessageService.deleteByConfigId(uavConfigVo.getId());
-        String[] split = uavConfigVo.getMessageTopic().split(",");
+        List<String> split = new ArrayList<>();
+        if(uavConfigVo.getMessageTopic()!=null){
+            split= Arrays.asList(uavConfigVo.getMessageTopic().split(","));
+        }else{
+            throw new Exception("请添加无人机订阅的主题！");
+        }
+
 
 
         for (String messageTopic:split) {
@@ -128,9 +161,10 @@ public class UavConfigServiceImpl extends ServiceImpl<UavConfigMapper, UavConfig
     @Transactional//防止出现脏数据
     public boolean saveUavConfigVo(UavConfigVo uavConfigVo) throws Exception {
         QueryWrapper<UavConfig> queryWrapper = new QueryWrapper<>();
-        if(!StringUtils.isEmpty(uavConfigVo.getAddress())&&!StringUtils.isEmpty(uavConfigVo.getUavClient())&&
+        if(!StringUtils.isEmpty(uavConfigVo.getUavId())&&!StringUtils.isEmpty(uavConfigVo.getAddress())&&!StringUtils.isEmpty(uavConfigVo.getUavClient())&&
                 !StringUtils.isEmpty(uavConfigVo.getUsername())&&!StringUtils.isEmpty(uavConfigVo.getPassword())&&
                 !StringUtils.isEmpty(uavConfigVo.getPort().toString())){
+            queryWrapper.eq("uav_id", uavConfigVo.getUavId());
             queryWrapper.eq("address", uavConfigVo.getAddress());
             queryWrapper.eq("uav_client", uavConfigVo.getUavClient());
             queryWrapper.eq("username", uavConfigVo.getUsername());
@@ -154,12 +188,13 @@ public class UavConfigServiceImpl extends ServiceImpl<UavConfigMapper, UavConfig
     }
 
     @Override
+    @Transactional
     public boolean connectUav(Long id) throws Exception {
         UavConfigVo uavConfigVo = queryById(id);
         if(StringUtils.isEmpty(uavConfigVo.getMessageTopic())){
             throw new Exception("无订阅消息，先添加订阅再连接！");
         }
-        MqttConsumerConfig mqttConsumerConfig = new MqttConsumerConfig();
+
         //连接Mqtt网关
         mqttConsumerConfig.connect(uavConfigVo);
         //订阅主题
@@ -173,7 +208,47 @@ public class UavConfigServiceImpl extends ServiceImpl<UavConfigMapper, UavConfig
         }
 
         mqttConsumerConfig.subscribe(split,qos);
+        mqttConsumerConfig.setIsConnected(true);
         uavConfigVo.setState(1L);
+        baseMapper.updateById(uavConfigVo);
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public boolean disconnectUav(Long id) throws Exception {
+        UavConfigVo uavConfigVo = queryById(id);
+        if(uavConfigVo.getState()!=1){
+            throw new Exception("当前不是处于连接状态！");
+        }
+        if(StringUtils.isEmpty(uavConfigVo.getMessageTopic())){
+            throw new Exception("无订阅消息，先添加订阅再取消连接！");
+        }
+
+        //设定无人机离线
+        uavConfigVo.setUavState(0);
+        //设定无人机识别服务状态
+        uavConfigVo.setUavAiState(0);
+        //取消识别服务
+        if(uavConfigVo.getUavId()!=null){
+            QueryWrapper<AvControl> avControlQueryWrapper=new QueryWrapper<>();
+            avControlQueryWrapper.eq("uav_sn",uavConfigVo.getUavId());
+            avControlService.list(avControlQueryWrapper).forEach(avControl->{
+                Map<String, Object> map = analyzer.controlCancel(avControl.getCode());
+                if("200".equals(map.get("code").toString()))
+                    avControl.setState(0L);
+                avControlService.updateById(avControl);
+            });
+        }
+        //取消连接Mqtt网关
+        System.out.println(mqttConsumerConfig.getIsConnected());
+        if(mqttConsumerConfig.getIsConnected()){
+
+            mqttConsumerConfig.disConnect();
+        }
+        //设定离线状态
+        uavConfigVo.setState(0L);
+        mqttConsumerConfig.setIsConnected(false);
         baseMapper.updateById(uavConfigVo);
         return true;
     }

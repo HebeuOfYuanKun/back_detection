@@ -24,8 +24,15 @@ import java.util.List;
 public class UavMessageServiceImpl extends ServiceImpl<UavMessageMapper, UavMessage> implements UavMessageService {
 
     @Override
-    public TableDataInfo<UavMessageVo> queryList(UavMessageVo entity) {
-        return PageUtils.buildDataInfo(this.baseMapper.queryList(PageUtils.buildPage(), entity));
+    public List<UavMessage> queryList(UavMessageVo entity) {
+        QueryWrapper<UavMessage>  uavMessageVoQueryWrapper=new QueryWrapper<>();
+        if(entity.getMessageName()!=null){
+            uavMessageVoQueryWrapper.like("message_name",entity.getMessageName());
+        }
+
+        //uavMessageVoQueryWrapper.eq("message_name",entity.getMessageName());
+        ;
+        return baseMapper.selectList(uavMessageVoQueryWrapper);
     }
 
     @Override
@@ -44,5 +51,25 @@ public class UavMessageServiceImpl extends ServiceImpl<UavMessageMapper, UavMess
         queryWrapper.eq("message_topic", topic);
         return baseMapper.selectOne(queryWrapper);
 
+    }
+
+    @Override
+    public boolean add(UavMessageVo entity) throws IllegalArgumentException {//添加订阅信息
+        Long messageQos = entity.getMessageQos();
+        if(messageQos<0L||messageQos>2L){
+            throw new IllegalArgumentException("qos值不正确,必须是0,1,2");
+        }
+        baseMapper.insert(entity);
+        return true;
+    }
+
+    @Override
+    public boolean editById(UavMessageVo entity) throws IllegalArgumentException{
+        Long messageQos = entity.getMessageQos();
+        if(messageQos<0L||messageQos>2L){
+            throw new IllegalArgumentException("qos值不正确,必须是0,1,2");
+        }
+        baseMapper.updateById(entity);
+        return true;
     }
 }

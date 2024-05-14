@@ -31,7 +31,11 @@ public class AvControl extends BaseEntity {
      *
      */
     private Long id;
-
+    /**
+     * 排序
+     */
+    @Excel(name = "识别名称")
+    private String name;
     /**
      * 排序
      */

@@ -1,6 +1,7 @@
 package com.ruoyi.business.uav.config;
 
 import com.ruoyi.business.uav.domain.vo.UavConfigVo;
+import lombok.Data;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
  */
 //接受天宇信息
 @Configuration
+@Data
 public class MqttConsumerConfig {
 
     @Autowired
@@ -27,6 +29,7 @@ public class MqttConsumerConfig {
      * 客户端对象
      */
     private MqttClient client;
+    private Boolean isConnected = false;
 
 
     /**
@@ -74,12 +77,10 @@ public class MqttConsumerConfig {
     /**
      * 断开连接
      */
-    public void disConnect(){
-        try {
+    public void disConnect() throws Exception{
+
             client.disconnect();
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
+
     }
 
 }

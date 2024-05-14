@@ -20,4 +20,5 @@ import lombok.experimental.Accessors;
 @EqualsAndHashCode(callSuper = true)
 public class UavConfigVo extends UavConfig {
     private String messageTopic;
+    private String uavControlName;
 }
