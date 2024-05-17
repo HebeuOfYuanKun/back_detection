@@ -20,19 +20,3 @@
 工作大致流程：使用ZlmediaKit流媒体服务器实现从无人机网关进行视频流拉流，然后使用视频分析模块进行拉流处理，解帧，得到视频帧，对帧画面使用Tensorrt推理加速处理视频帧，使用OpenCV对视频帧进行画框，然后合成帧，推流到ZlmediaKit流媒体服务器。前端使用Flv.js进行播放，如果出现设定的预警标准，会进行弹窗预警以及生成预警信息。
 
 项目截图：
-
-![image-20240514171613481](C:\Users\admin\AppData\Roaming\Typora\typora-user-images\image-20240514171613481.png)
-
-![image-20240514171633373](C:\Users\admin\AppData\Roaming\Typora\typora-user-images\image-20240514171633373.png)
-
-![image-20240514171651109](C:\Users\admin\AppData\Roaming\Typora\typora-user-images\image-20240514171651109.png)
-
-![image-20240514171703422](C:\Users\admin\AppData\Roaming\Typora\typora-user-images\image-20240514171703422.png)
-
-![image-20240514171717270](C:\Users\admin\AppData\Roaming\Typora\typora-user-images\image-20240514171717270.png)
-
-![image-20240514171736057](C:\Users\admin\AppData\Roaming\Typora\typora-user-images\image-20240514171736057.png)
-
-![image-20240514171748057](C:\Users\admin\AppData\Roaming\Typora\typora-user-images\image-20240514171748057.png)
-
-![image-20240514171805336](C:\Users\admin\AppData\Roaming\Typora\typora-user-images\image-20240514171805336.png)
