@@ -1,4 +1,5 @@
 ## 无人机智能巡检平台——后端服务模块
+[![star](https://gitee.com/yuankunn/ai_detection/badge/star.svg?theme=dark)](https://gitee.com/yuankunn/ai_detection/stargazers)
 
 ```若依``` ```Java``` ```SpringBoot2.5.14``` ```Mqtt``` ```定时任务``` ```WebSocket``` ```大疆无人机``` ```MySQL``` ```Mybatis-Plus```
 
