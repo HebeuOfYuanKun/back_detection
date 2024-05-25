@@ -72,7 +72,7 @@ public class UavConfigServiceImpl extends ServiceImpl<UavConfigMapper, UavConfig
             UavConfigVo uavConfigVo = new UavConfigVo();
             BeanUtils.copyProperties(uavConfig, uavConfigVo);
             //先查询关联表中无人机配置的所有订阅信息的id
-            List<UavConfigMessage> uavConfigMessageList = uavConfigMessageService.queryByConfigId(uavConfigVo.getId());
+            List<UavConfigMessage> uavConfigMessageList = uavConfigMessageService.queryUavConfigMessageByConfigId(uavConfigVo.getId());
             List<String> messageTopic = new ArrayList<>();
             for (UavConfigMessage uavConfigMessage:uavConfigMessageList) {
                 //根据订阅信息id查询订阅topic
@@ -112,7 +112,7 @@ public class UavConfigServiceImpl extends ServiceImpl<UavConfigMapper, UavConfig
         UavConfigVo uavConfigVo = new UavConfigVo();
         BeanUtils.copyProperties(uavConfig, uavConfigVo);
         //先查询关联表中无人机配置的所有订阅信息的id
-        List<UavConfigMessage> uavConfigMessageList = uavConfigMessageService.queryByConfigId(uavConfigVo.getId());
+        List<UavConfigMessage> uavConfigMessageList = uavConfigMessageService.queryUavConfigMessageByConfigId(uavConfigVo.getId());
         List<String> messageTopic = new ArrayList<>();
         for (UavConfigMessage uavConfigMessage:uavConfigMessageList) {
             //根据订阅信息id查询订阅topic

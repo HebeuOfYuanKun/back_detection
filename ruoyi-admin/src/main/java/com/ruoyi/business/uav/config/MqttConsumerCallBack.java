@@ -8,7 +8,9 @@ import com.ruoyi.business.aidetection.config.ZLMediaKit;
 import com.ruoyi.business.aidetection.domain.AvControl;
 import com.ruoyi.business.aidetection.service.AvControlService;
 import com.ruoyi.business.uav.domain.UavConfig;
+import com.ruoyi.business.uav.domain.UavMessage;
 import com.ruoyi.business.uav.mapper.UavConfigMapper;
+import com.ruoyi.business.uav.service.UavConfigMessageService;
 import com.ruoyi.common.core.redis.RedisCache;
 import com.ruoyi.utils.GetLive;
 import com.ruoyi.web.pb.TelemetryData;
@@ -20,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,6 +43,8 @@ public class MqttConsumerCallBack implements MqttCallbackExtended {
     private UavConfigMapper uavConfigMapper;
     @Autowired
     private AvControlService avControlService;
+    @Autowired
+    private UavConfigMessageService uavConfigMessageService;
     @Autowired
     private Analyzer analyzer;
     @Autowired
@@ -87,6 +92,8 @@ public class MqttConsumerCallBack implements MqttCallbackExtended {
         }
 
         if (topic.contains("yukong/message/company")) {
+
+
             String messageJson = new String(message.getPayload());
             JSONObject jsonObject = JSONUtil.parseObj(messageJson);
             //开始直播
@@ -99,6 +106,21 @@ public class MqttConsumerCallBack implements MqttCallbackExtended {
                 QueryWrapper<UavConfig> uavConfigQueryWrapper=new QueryWrapper<>();
                 uavConfigQueryWrapper.eq("uav_id",boxSnStr);
                 UavConfig uavConfig = uavConfigMapper.selectOne(uavConfigQueryWrapper);
+                //查询是否此飞机订阅了该消息订阅
+                if(uavConfig==null){
+                    return;
+                }
+                List<UavMessage> uavMessages = uavConfigMessageService.queryUavMessageByConfigId(uavConfig.getId());
+                int i = 0;
+                for (UavMessage  uavMessage:uavMessages) {
+                    if(uavMessage.getMessageTopic().contains("yukong/message/company")){
+                        i++;
+                        break;
+                    }
+                }
+                if(i==0){//没有订阅该消息
+                    return;
+                }
                 //开启识别
                 String[] split = uavConfig.getUavControlId().split(",");//获取布控id
                 for (String controlId:split) {
@@ -118,8 +140,25 @@ public class MqttConsumerCallBack implements MqttCallbackExtended {
             }
             //结束直播
             if ("C20002".equals(jsonObject.get("messageType"))) {
+                Object boxSn = jsonObject.get("boxSn");
+                String boxSnStr = JSONUtil.parseObj(boxSn).toString();
+                //查询uav配置
+                QueryWrapper<UavConfig> uavConfigQueryWrapper=new QueryWrapper<>();
+                uavConfigQueryWrapper.eq("uav_id",boxSnStr);
+                UavConfig uavConfig = uavConfigMapper.selectOne(uavConfigQueryWrapper);
+                //开启识别
+                String[] split = uavConfig.getUavControlId().split(",");//获取布控id
+                for (String controlId:split) {
+                    AvControl avControlVo = avControlService.getById(controlId);
+                    if(avControlVo==null){
+                        break;
+                    }
+                    Map<String, Object> map = analyzer.controlCancel(avControlVo.getCode());
 
-
+                    if("200".equals(map.get("code").toString()))
+                        avControlVo.setState(0L);
+                    avControlService.updateById(avControlVo);
+                }
             }
         }
     }
