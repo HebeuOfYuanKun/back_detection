@@ -9,23 +9,21 @@ import com.ruoyi.business.aidetection.domain.AvControl;
 import com.ruoyi.business.aidetection.service.AvControlService;
 import com.ruoyi.business.uav.domain.UavConfig;
 import com.ruoyi.business.uav.domain.UavMessage;
+import com.ruoyi.business.uav.domain.vo.UavStateMessageVo;
 import com.ruoyi.business.uav.mapper.UavConfigMapper;
 import com.ruoyi.business.uav.service.UavConfigMessageService;
 import com.ruoyi.common.core.redis.RedisCache;
-import com.ruoyi.utils.GetLive;
-import com.ruoyi.web.pb.TelemetryData;
+import com.ruoyi.web.pb.UavStateMessage;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 /**
  * @Author：yuankun
@@ -83,12 +81,14 @@ public class MqttConsumerCallBack implements MqttCallbackExtended {
                 uavConfigQueryWrapper.eq("uav_id",uavId);
                 uavConfigMapper.selectOne(uavConfigQueryWrapper);
                 //System.out.println(extracted);
-            }
-            TelemetryData telemetryData = TelemetryData.parseFrom(message.getPayload());*/
-            //TelemetryDataVo telemetryDataVo = new TelemetryDataVo();
-            //BeanUtils.copyProperties(telemetryData, telemetryDataVo);
-
-            //redisCache.setCacheObject("status", telemetryDataVo);
+            }*/
+            UavStateMessage uavStateMessage = UavStateMessage.parseFrom(message.getPayload());
+            UavStateMessageVo uavStateMessageVo = new UavStateMessageVo();
+            BeanUtils.copyProperties(uavStateMessage, uavStateMessageVo);
+            //System.out.println(telemetryData);
+            //JSONObject jsonObject=JSONUtil.parseObj(telemetryData,false);
+            //Map<String>
+            redisCache.setCacheObject("UavStatus", uavStateMessageVo);
         }
 
         if (topic.contains("yukong/message/company")) {

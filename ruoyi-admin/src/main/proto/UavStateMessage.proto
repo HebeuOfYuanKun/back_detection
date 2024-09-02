@@ -11,7 +11,7 @@ message SearchInfo{
   PosInfo baseInfo = 4;//对象
   repeated Hobby hobbies = 5;//集合
 }
-message TelemetryData{
+message UavStateMessage{
   double lng=1;//经度
   double lat=2;//纬度
   float altitude=3;//海拔高度(椭球高)(单位:米)

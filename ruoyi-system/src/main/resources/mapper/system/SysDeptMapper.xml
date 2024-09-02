@@ -33,7 +33,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<if test="deptId != null and deptId != 0">
 			AND dept_id = #{deptId}
 		</if>
-        <if test="parentId != null and parentId != 0">
+        <if test="parentId != null">
 			AND parent_id = #{parentId}
 		</if>
 		<if test="deptName != null and deptName != ''">

@@ -32,9 +32,9 @@ import java.util.Map;
  * @Author：yuankun
  * @Package：com.ruoyi.business.uav.service.impl
  * @Project：ruoyi-vue-service
- * @name：cc
+ * @name：UavConfigServiceImpl
  * @Date：2024/5/12 15:27
- * @Filename：cc
+ * @Filename：UavConfigServiceImpl
  */
 @Service
 public class UavConfigServiceImpl extends ServiceImpl<UavConfigMapper, UavConfig> implements UavConfigService {
@@ -211,6 +211,7 @@ public class UavConfigServiceImpl extends ServiceImpl<UavConfigMapper, UavConfig
         mqttConsumerConfig.setIsConnected(true);
         uavConfigVo.setState(1L);
         baseMapper.updateById(uavConfigVo);
+
         return true;
     }
 
