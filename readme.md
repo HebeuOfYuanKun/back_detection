@@ -9,6 +9,11 @@
 
 总共有四大模块：视频分析模块（C++）、后端服务模块（基于若依）、流媒体服务模块、前端展示模块（Vue）
 
+项目运行，git克隆后，先下载依赖，jdk版本是1.8，然后Maven里面点击下面图片这个，再点击下一个图片这个。
+![图片](https://github.com/user-attachments/assets/5db26a59-8112-4de1-bab3-edc40d28d475)![图片](https://github.com/user-attachments/assets/b1c0242f-038c-4752-85cd-dc827a4e2240)
+
+项目运行所需要的环境：MySQL5.7（我用的5.7，其他版本自测）、Redis
+
 项目特色：
 
 - 调用更改后的YoloV8s模型，进行无人机拍摄的不安全行为实时检测。
