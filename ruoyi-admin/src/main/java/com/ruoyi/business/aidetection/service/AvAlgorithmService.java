@@ -33,7 +33,7 @@ public interface AvAlgorithmService extends IService<AvAlgorithm> {
      * @param entity
      * @return
      */
-    TableDataInfo<AvAlgorithmVo> queryList(AvAlgorithmVo entity);
+    List<AvAlgorithmVo> queryList(AvAlgorithmVo entity);
 
     /**
      * 查询全部
@@ -50,5 +50,6 @@ public interface AvAlgorithmService extends IService<AvAlgorithm> {
      * @return
      */
     AvAlgorithmVo queryById(Long id);
+
 }
 

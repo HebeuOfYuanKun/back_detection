@@ -35,7 +35,10 @@ public class MimeTypeUtils {
             // 视频格式
             "mp4", "avi", "rmvb",
             // pdf
-            "pdf"};
+            "pdf",
+            //模型
+            "onnx","pt","engine","dat","bin","xml","yaml"
+    };
 
     public static String getExtension(String prefix) {
         switch (prefix) {

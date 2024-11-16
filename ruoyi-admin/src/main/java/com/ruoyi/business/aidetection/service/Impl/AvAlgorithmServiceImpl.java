@@ -1,5 +1,6 @@
 package com.ruoyi.business.aidetection.service.Impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.business.aidetection.domain.AvAlgorithm;
 import com.ruoyi.business.aidetection.domain.vo.AvAlgorithmVo;
@@ -26,8 +27,18 @@ import java.util.List;
 public class AvAlgorithmServiceImpl extends ServiceImpl<AvAlgorithmMapper, AvAlgorithm> implements AvAlgorithmService {
 
     @Override
-    public TableDataInfo<AvAlgorithmVo> queryList(AvAlgorithmVo entity) {
-        return PageUtils.buildDataInfo(this.baseMapper.queryList(PageUtils.buildPage(), entity));
+    public List<AvAlgorithmVo> queryList(AvAlgorithmVo entity) {
+
+        QueryWrapper queryWrapper = new QueryWrapper<>();
+        if(entity.getName()!=null&&!"".equals(entity.getName())){
+            queryWrapper.like("name",entity.getName());
+        }
+        if(entity.getModelName()!=null&&!"".equals(entity.getModelName())){
+            queryWrapper.like("model_name",entity.getModelName());
+        }
+        List<AvAlgorithmVo> list = baseMapper.selectList(queryWrapper);
+
+        return list;
     }
 
     @Override
@@ -44,6 +55,14 @@ public class AvAlgorithmServiceImpl extends ServiceImpl<AvAlgorithmMapper, AvAlg
 
     @Override
     public AvAlgorithmVo queryById(Long id) {
-        return this.baseMapper.queryById(id);
+        AvAlgorithm avAlgorithm = baseMapper.selectById(id);
+        AvAlgorithmVo avAlgorithmVo =new AvAlgorithmVo();
+        BeanUtils.copyProperties(avAlgorithm, avAlgorithmVo);
+        return avAlgorithmVo;
+    }
+
+    @Override
+    public boolean save(AvAlgorithm entity) {
+        return super.save(entity);
     }
 }
