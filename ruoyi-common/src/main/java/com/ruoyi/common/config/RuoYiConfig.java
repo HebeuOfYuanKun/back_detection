@@ -123,4 +123,6 @@ public class RuoYiConfig {
     public void setDemoEnabled(boolean demoEnabled) {
         this.demoEnabled = demoEnabled;
     }
+
+
 }

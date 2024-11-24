@@ -44,6 +44,13 @@ public interface AvAlgorithmService extends IService<AvAlgorithm> {
     List<AvAlgorithmVo> queryAll(AvAlgorithmVo entity);
 
     /**
+     * 根据算法编码查询
+     *
+     * @param AlgorithmCode
+     * @return
+     */
+    AvAlgorithmVo queryByAlgorithmCode(String  AlgorithmCode);
+    /**
      * 根据ID查询
      *
      * @param id

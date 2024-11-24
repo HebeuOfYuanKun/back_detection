@@ -1,20 +1,36 @@
 package com.ruoyi.business.aidetection.config;
+
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-
+import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+/**
+/**
+ * 配置读取类
+ * 负责从 JSON 配置文件中读取相关配置信息
+ */
 @Data
 @Component
+@Order(1)
 public class ReadConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(ReadConfig.class);
+
+    @Value("${config.file.path}")
+
+    private String configFilePath;
 
     private String host;
     private String rootDir;
@@ -27,48 +43,65 @@ public class ReadConfig {
     private String mediaWsHost;
     private String mediaRtspHost;
     private String mediaSecret;
-
-    public ReadConfig() {
-        /*String baseDir = Settings.BASE_DIR;
-        String baseDirLastDir = Paths.get(baseDir).getParent().toString();
-        String filename = Paths.get(baseDirLastDir, "config.json").toString();*/
-
+    @PostConstruct
+    public void ReadConfig() {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("D:/BaiduNetdiskDownload/download/VideoAnalyzer_v3/BXC_VideoAnalyzer_v3.2/config.json")) ;
-            String line;
-            StringBuilder content = new StringBuilder();
-            while ((line = reader.readLine()) != null) {
-                // 拼接每一行的内容
-                content.append(line);
-            }
-            String fileContent = content.toString();
-            //System.out.println(fileContent);
-            //String content = Files.readString(Path.of(filename), StandardCharsets.UTF_8);
-            JSONObject configData = JSONUtil.parseObj(fileContent);
+            // 加载并解析配置文件
+            JSONObject configData = loadConfig(configFilePath);
 
-            System.out.println(configData);
+            // 从 JSON 数据中初始化配置
+            initializeConfig(configData);
 
-
-            host = configData.getStr( "host" );
-            mqttAddress = configData.getStr("mqttAddress");
-            mqttUsername = configData.getStr("mqttUsername");
-            mqttPassword = configData.getStr("mqttPassword");
-            rootDir = configData.getStr("rootDir");
-            int adminPort = configData.getInt("adminPort");
-            int analyzerPort = configData.getInt("analyzerPort");
-            int mediaHttpPort = configData.getInt("mediaHttpPort");
-            int mediaRtspPort = configData.getInt("mediaRtspPort");
-            mediaSecret = configData.getStr("mediaSecret");
-
-            adminHost = "http://" + host + ":" + adminPort;
-            analyzerHost = "http://" + host + ":" + analyzerPort;
-            mediaHttpHost = "http://" + host + ":" + mediaHttpPort;
-            mediaWsHost = "ws://" + host + ":" + mediaHttpPort;
-            mediaRtspHost = "rtsp://" + host + ":" + mediaRtspPort;
-            System.out.println(analyzerHost);
-        } catch (IOException e) {
-            e.printStackTrace();
+            logger.info("Configuration loaded successfully. Analyzer Host: {}", analyzerHost);
+        } catch (Exception e) {
+            logger.error("Failed to load configuration file from path: {}", configFilePath, e);
         }
     }
 
+    /**
+     * 加载配置文件并解析为 JSON 对象
+     *
+     * @param filePath 配置文件路径
+     * @return 解析后的 JSON 数据
+     * @throws IOException 如果文件读取失败
+     */
+    private JSONObject loadConfig(String filePath) throws IOException {
+        StringBuilder content = new StringBuilder();
+
+        // 使用 try-with-resources 确保资源自动关闭
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line);
+            }
+        }
+
+        return JSONUtil.parseObj(content.toString());
+    }
+
+    /**
+     * 从 JSON 数据中初始化配置信息
+     *
+     * @param configData JSON 配置数据
+     */
+    private void initializeConfig(JSONObject configData) {
+        this.host = configData.getStr("host");
+        this.mqttAddress = configData.getStr("mqttAddress");
+        this.mqttUsername = configData.getStr("mqttUsername");
+        this.mqttPassword = configData.getStr("mqttPassword");
+        this.rootDir = configData.getStr("rootDir");
+
+        int adminPort = configData.getInt("adminPort");
+        int analyzerPort = configData.getInt("analyzerPort");
+        int mediaHttpPort = configData.getInt("mediaHttpPort");
+        int mediaRtspPort = configData.getInt("mediaRtspPort");
+
+        this.mediaSecret = configData.getStr("mediaSecret");
+
+        this.adminHost = "http://" + host + ":" + adminPort;
+        this.analyzerHost = "http://" + host + ":" + analyzerPort;
+        this.mediaHttpHost = "http://" + host + ":" + mediaHttpPort;
+        this.mediaWsHost = "ws://" + host + ":" + mediaHttpPort;
+        this.mediaRtspHost = "rtsp://" + host + ":" + mediaRtspPort;
+    }
 }

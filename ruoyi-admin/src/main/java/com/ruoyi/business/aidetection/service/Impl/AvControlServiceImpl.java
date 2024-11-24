@@ -42,28 +42,43 @@ public class AvControlServiceImpl extends ServiceImpl<AvControlMapper, AvControl
         List<AvControlVo> avControlVoList =new ArrayList<>();
         try{
             List<Map<String, Object>> mediaServerList = zlMediaKit.getMediaList();//获取流媒体服务列表，即在线视频流
-            System.out.println(mediaServerList);
+
             mediaServerState = zlMediaKit.isMediaServerState();//获取流媒体服务器状态
             for (Map<String,Object> mediaServer:mediaServerList) {
                 if((Boolean) mediaServer.get("active")){
 
                     mediaOnlineServerList.put(mediaServer.get("code").toString(),mediaServer);
-                    System.out.println(mediaOnlineServerList);
+
                 }
             }
-            if(mediaServerState){
-                Map<String,Object> mapControls=analyzer.controls();
-                System.out.println(analyzer);
-                analyzerServerState = analyzer.isAnalyzerServerState();
-                //System.out.println(mapControls);
-                for (int i = 0; i < ((JSONArray)mapControls.get("data")).length(); i++) {
-                    JSONObject j = (JSONObject) ((JSONArray)mapControls.get("data")).get(i);
+        }catch (Exception e){
+            log.error("Error while querying media servers", e);  // 使用日志记录异常
 
-                    //System.out.println("==========="+(j.getString("code")));
-                    analyzerOnlineServerList.put(j.getString("code"),j);
+        }
+        try{
+            Map<String,Object> mapControls=analyzer.controls();
+
+            analyzerServerState = analyzer.isAnalyzerServerState();
+            //System.out.println(mapControls);
+            if (mapControls != null && !mapControls.isEmpty()) {
+                JSONArray dataArray = (JSONArray) mapControls.get("data");
+                if (dataArray != null && dataArray.length() > 0) {
+                    for (int i = 0; i < dataArray.length(); i++) {
+                        JSONObject j = dataArray.optJSONObject(i);
+                        if (j != null && j.has("code")) {
+                            analyzerOnlineServerList.put(j.getString("code"), j);
+                        }
+                    }
                 }
-
             }
+            /*for (int i = 0; i < ((JSONArray)mapControls.get("data")).length(); i++) {
+                JSONObject j = (JSONObject) ((JSONArray)mapControls.get("data")).get(i);
+
+                //System.out.println("==========="+(j.getString("code")));
+                analyzerOnlineServerList.put(j.getString("code"),j);
+            }*/
+
+
             QueryWrapper<AvControl> queryWrapper = new QueryWrapper();
             queryWrapper.orderByAsc("sort");
             List<AvControl> avControlList = baseMapper.selectList(queryWrapper);
@@ -108,7 +123,7 @@ public class AvControlServiceImpl extends ServiceImpl<AvControlMapper, AvControl
 
 
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("Error while querying analyzer servers", e);  // 使用日志记录异常
 
         }
 

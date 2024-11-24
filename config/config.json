@@ -1,0 +1,21 @@
+{
+  "version": "3.43",
+  "host": "127.0.0.1",
+  "adminPort": 9001,
+  "mediaHttpPort": 9002,
+  "analyzerPort": 9003,
+  "mediaRtspPort": 9554,
+  "mediaSecret": "aqxY9ps21fyhyKNRyYpGvJCTp1JBeGOM",
+  "uploadDir": "F:\\code\\BXC_VideoAnalyzer_v3\\BXC_VideoAnalyzer_v3\\Admin\\static\\upload",
+  "modelDir": "F:\\code\\BXC_VideoAnalyzer_v3\\BXC_VideoAnalyzer_v3\\Analyzer\\models",
+  "recordLogInterval": 30,
+  "workerConcurrency": 20,
+  "algorithmApiUrl": "http://127.0.0.1:9703/algorithm",
+  "onnxRuntime": "F:\\code\\BXC_VideoAnalyzer_v3\\BXC_VideoAnalyzer_v3\\Analyzer\\models\\yolov8n.onnx",
+  "tensorRt": "F:\\code\\BXC_VideoAnalyzer_v3\\BXC_VideoAnalyzer_v3\\Analyzer\\models\\402.engine",
+  "openVINO": "F:\\code\\BXC_VideoAnalyzer_v3\\BXC_VideoAnalyzer_v3\\Analyzer\\models\\yolov8_face_openvino_model\\face.xml",
+  "algorithmOpenVINODetectDevice": "GPU",
+  "algorithmOnnxRuntimeDetectDevice": "CUDAExecutionProvider",
+  "recognition_distance_thresh":0.5,
+  "detect_face_score_thresh":0.5
+}

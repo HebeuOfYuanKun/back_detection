@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -20,7 +21,12 @@ import java.io.IOException;
 @SpringBootTest
 class RuoYiApplicationTest {
 
+    @Autowired
+    private Environment environment;
 
+    public void ccc() {
+        System.out.println("Config File Path: " + environment.getProperty("config.file.path"));
+    }
     @Test/*@Autowired
     private ZLMediaKit zlMediaKit;
     @Autowired

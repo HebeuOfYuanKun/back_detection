@@ -4,7 +4,9 @@ import com.ruoyi.business.aidetection.config.Analyzer;
 import com.ruoyi.business.aidetection.config.ZLMediaKit;
 import com.ruoyi.business.aidetection.domain.AvAlarm;
 import com.ruoyi.business.aidetection.domain.AvControl;
+import com.ruoyi.business.aidetection.domain.vo.AvAlgorithmVo;
 import com.ruoyi.business.aidetection.domain.vo.AvControlVo;
+import com.ruoyi.business.aidetection.service.AvAlgorithmService;
 import com.ruoyi.business.aidetection.service.AvControlService;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
@@ -40,6 +42,8 @@ import java.util.Map;
 public class AvControlController extends BaseController {
     @Autowired
     private AvControlService avControlService;
+    @Autowired
+    private AvAlgorithmService avAlgorithmService;
     @Autowired
     private Analyzer analyzer;
     @Autowired
@@ -97,18 +101,25 @@ public class AvControlController extends BaseController {
     @PreAuthorize("@ss.hasPermi('business:control:detection')")
     @Log(title = "detection", businessType = BusinessType.INSERT)
     @PostMapping("detection/{id}")
-    public Map<String, Object> addDetection(@PathVariable("id") Long id) {
+    public AjaxResult addDetection(@PathVariable("id") Long id) {
         AvControl avControlVo = avControlService.getById(id);
-
-        Map<String, Object> map = analyzer.controlAdd(avControlVo.getCode(), avControlVo.getAlgorithmCode(), avControlVo.getObjectCode(), avControlVo.getMinInterval(),
+        AvAlgorithmVo avAlgorithmVo = avAlgorithmService.queryByAlgorithmCode(avControlVo.getAlgorithmCode());
+        if(avAlgorithmVo.getObjects()==null||avAlgorithmVo.getObjects().length()==0){
+            return AjaxResult.error("布控出错，没有相应的算法");
+        }
+        Map<String, Object> map = analyzer.controlAdd(avControlVo.getCode(), avControlVo.getAlgorithmCode(),avAlgorithmVo.getObjects(), avControlVo.getObjectCode(), avControlVo.getMinInterval(),
                 avControlVo.getClassThresh(), avControlVo.getOverlapThresh(), zlMediaKit.getRtspUrl(avControlVo.getStreamApp(), avControlVo.getStreamName()),
                 avControlVo.getPushStream(), zlMediaKit.getRtspUrl(avControlVo.getPushStreamApp(), avControlVo.getPushStreamName()));
 
-        if("200".equals(map.get("code").toString()))
+        if("200".equals(map.get("code").toString())){
             avControlVo.setState(1L);
-     avControlService.updateById(avControlVo);
+            avControlService.updateById(avControlVo);
+            return AjaxResult.success("添加识别成功");
+        }
 
-        return map;
+
+
+        return AjaxResult.error(map.get("msg").toString());
     }
 
     @ApiOperation("取消识别")

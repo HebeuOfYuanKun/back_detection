@@ -13,6 +13,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -51,6 +52,21 @@ public class AvAlgorithmServiceImpl extends ServiceImpl<AvAlgorithmMapper, AvAlg
             avAlgorithmVos.add(avAlgorithmVo);
         }
         return avAlgorithmVos;
+    }
+    /**
+     * 根据算法代码查询算法列表
+     *
+     * @param AlgorithmCode 算法代码
+     * @return 算法，若未找到匹配的算法，则返回空
+     */
+    @Override
+    public AvAlgorithmVo queryByAlgorithmCode(String AlgorithmCode) throws RuntimeException{
+        QueryWrapper<AvAlgorithm> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("algorithm_code",AlgorithmCode);
+        AvAlgorithm avAlgorithm = baseMapper.selectOne(queryWrapper);
+        AvAlgorithmVo avAlgorithmVo = new AvAlgorithmVo();
+        BeanUtils.copyProperties(avAlgorithm, avAlgorithmVo);
+        return avAlgorithmVo;
     }
 
     @Override

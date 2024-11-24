@@ -6,12 +6,15 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ruoyi.business.aidetection.config.Analyzer;
 import com.ruoyi.business.aidetection.config.ZLMediaKit;
 import com.ruoyi.business.aidetection.domain.AvControl;
+import com.ruoyi.business.aidetection.domain.vo.AvAlgorithmVo;
+import com.ruoyi.business.aidetection.service.AvAlgorithmService;
 import com.ruoyi.business.aidetection.service.AvControlService;
 import com.ruoyi.business.uav.domain.UavConfig;
 import com.ruoyi.business.uav.domain.UavMessage;
 import com.ruoyi.business.uav.domain.vo.UavStateMessageVo;
 import com.ruoyi.business.uav.mapper.UavConfigMapper;
 import com.ruoyi.business.uav.service.UavConfigMessageService;
+import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.redis.RedisCache;
 import com.ruoyi.web.pb.UavStateMessage;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -41,6 +44,8 @@ public class MqttConsumerCallBack implements MqttCallbackExtended {
     private UavConfigMapper uavConfigMapper;
     @Autowired
     private AvControlService avControlService;
+    @Autowired
+    private AvAlgorithmService avAlgorithmService;
     @Autowired
     private UavConfigMessageService uavConfigMessageService;
     @Autowired
@@ -128,7 +133,11 @@ public class MqttConsumerCallBack implements MqttCallbackExtended {
                     if(avControlVo==null){
                         break;
                     }
-                    Map<String, Object> map = analyzer.controlAdd(avControlVo.getCode(), avControlVo.getAlgorithmCode(), avControlVo.getObjectCode(), avControlVo.getMinInterval(),
+                    AvAlgorithmVo avAlgorithmVo = avAlgorithmService.queryByAlgorithmCode(avControlVo.getAlgorithmCode());
+                    if(avAlgorithmVo.getObjects()==null||avAlgorithmVo.getObjects().length()==0){
+                        break;
+                    }
+                    Map<String, Object> map = analyzer.controlAdd(avControlVo.getCode(), avControlVo.getAlgorithmCode(),avAlgorithmVo.getObjects(), avControlVo.getObjectCode(), avControlVo.getMinInterval(),
                             avControlVo.getClassThresh(), avControlVo.getOverlapThresh(), zlMediaKit.getRtspUrl(avControlVo.getStreamApp(), avControlVo.getStreamName()),
                             avControlVo.getPushStream(), zlMediaKit.getRtspUrl(avControlVo.getPushStreamApp(), avControlVo.getPushStreamName()));
 

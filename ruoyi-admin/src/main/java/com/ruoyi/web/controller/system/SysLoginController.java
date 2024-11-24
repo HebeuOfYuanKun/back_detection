@@ -10,7 +10,6 @@ import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.framework.web.service.SysLoginService;
 import com.ruoyi.framework.web.service.SysPermissionService;
 import com.ruoyi.system.service.ISysMenuService;
-import com.ruoyi.utils.GetToken;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,8 +35,7 @@ public class SysLoginController {
     @Autowired
     private SysPermissionService permissionService;
 
-    @Autowired
-    private GetToken getToken;
+
 
 
     /**
@@ -53,7 +51,7 @@ public class SysLoginController {
         String token = loginService.login(loginBody.getUsername(), loginBody.getPassword(), loginBody.getCode(),
                 loginBody.getUuid());
         ajax.put(Constants.TOKEN, token);
-        getToken.getXcidAndXtoken();
+        //getToken.getXcidAndXtoken();
         //连接mqtt服务器
         //mqttConsumerConfig.connect();
         //mqttProviderConfig.connect();

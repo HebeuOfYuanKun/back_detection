@@ -1,3 +1,4 @@
+/*
 package com.ruoyi.utils;
 
 import cn.hutool.json.JSONObject;
@@ -23,8 +24,10 @@ public class GetToken {
     @Value("${request.AccessKeySecret}")
     private String AccessKeySecret;
 
-    /*@Autowired
-    private RedisCache redisCache;*/
+    */
+/*@Autowired
+    private RedisCache redisCache;*//*
+
     private RedisCache redisCache = BeanUtils.getBean(RedisCache.class);
     public Map getXcidAndXtoken(){
 
@@ -87,3 +90,4 @@ public class GetToken {
         return buf.toString();
     }
 }
+*/

@@ -1,5 +1,7 @@
+/*
 package com.ruoyi.business.aidetection.config;
 
+*/
 /**
  * @Author：yuankun
  * @Package：com.ruoyi.business.aidetection.config
@@ -7,7 +9,8 @@ package com.ruoyi.business.aidetection.config;
  * @name：ZLMediaKit
  * @Date：2024/4/7 21:29
  * @Filename：ZLMediaKit
- */
+ *//*
+
 import java.io.DataInput;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,16 +24,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 @Component
 @Data
-
+@Slf4j
+@DependsOn("readConfig")
 public class ZLMediaKit {
+    @Autowired
     private ReadConfig config;
     private String defaultPushStreamApp = "analyzer";
     private int timeout = 1;
@@ -234,13 +241,14 @@ public class ZLMediaKit {
 
                 }
             } else {
+                log.error("%s error:status: {}", this.getClass().getName(), response.code());
                 System.out.printf("%s error:status=%d\n", this.getClass().getName(), response.code());
             }
             this.mediaServerState = true;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error in getMediaList: {}", e.getMessage(), e);
             this.mediaServerState = false;
-            System.out.println(e);
+
 
         }
 
@@ -248,3 +256,191 @@ public class ZLMediaKit {
         return data;
     }
 }
+*/
+package com.ruoyi.business.aidetection.config;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.stereotype.Component;
+
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+@Component
+@Data
+@Slf4j
+@DependsOn("readConfig")
+public class ZLMediaKit {
+
+    @Autowired
+    private ReadConfig config;
+
+    private String defaultPushStreamApp = "analyzer";
+    private int timeout = 1;
+    private boolean mediaServerState = false;
+
+    private final OkHttpClient client;
+
+    public ZLMediaKit() {
+        this.client = new OkHttpClient.Builder()
+                .connectTimeout(timeout, TimeUnit.SECONDS)
+                .build();
+    }
+
+    public String getHlsUrl(String app, String name) {
+        return String.format("%s/%s/%s.hls.m3u8", config.getMediaHttpHost(), app, name);
+    }
+
+    public String getFlvUrl(String app, String name) {
+        return String.format("%s/%s/%s.live.flv", config.getMediaHttpHost(), app, name);
+    }
+
+    public String getRtspUrl(String app, String name) {
+        return String.format("%s/%s/%s", config.getMediaRtspHost(), app, name);
+    }
+
+    public String addStreamProxy(String app, String name, String originUrl, String vhost) {
+        String url = String.format(
+                "%s/index/api/addStreamProxy?secret=%s&vhost=%s&app=%s&stream=%s&url=%s",
+                config.getMediaHttpHost(), config.getMediaSecret(), vhost, app, name, originUrl
+        );
+
+        String responseBody = sendRequest(url, "addStreamProxy");
+        if (responseBody != null) {
+            // Assuming a successful response contains a non-zero key
+            return responseBody;
+        }
+        return null;
+    }
+
+    public boolean delStreamProxy(String key) {
+        String url = String.format(
+                "%s/index/api/delStreamProxy?secret=%s&key=%s",
+                config.getMediaHttpHost(), config.getMediaSecret(), key
+        );
+
+        String responseBody = sendRequest(url, "delStreamProxy");
+        return responseBody != null && "0".equals(responseBody.trim());
+    }
+
+    public List<Map<String, Object>> getMediaList() {
+        List<Map<String, Object>> data = new ArrayList<>();
+        String url = String.format("%s/index/api/getMediaList?secret=%s", config.getMediaHttpHost(), config.getMediaSecret());
+
+        String responseBody = sendRequest(url, "getMediaList");
+        if (responseBody == null) {
+            return data; // Return empty list if the request failed
+        }
+
+        try {
+            Map<String, Object> responseJson = new ObjectMapper().readValue(responseBody, Map.class);
+            if ((int) responseJson.get("code") == 0) {
+                List<Map<String, Object>> responseData = (List<Map<String, Object>>) responseJson.get("data");
+                processMediaList(responseData, data);
+            }
+        } catch (Exception e) {
+            log.error("Error parsing JSON in getMediaList: {}", e.getMessage(), e);
+        }
+        return data;
+    }
+
+    private void processMediaList(List<Map<String, Object>> responseData, List<Map<String, Object>> data) {
+        if (responseData == null || responseData.isEmpty()) {
+            return;
+        }
+
+        Map<String, Map<String, Map<String, Object>>> dataGroup = new HashMap<>();
+
+        // Group data by app and stream
+        for (Map<String, Object> item : responseData) {
+            String app = (String) item.get("app");
+            String stream = (String) item.get("stream");
+            String schema = (String) item.get("schema");
+            String code = String.format("%s_%s", app, stream);
+
+            dataGroup.computeIfAbsent(code, k -> new HashMap<>()).put(schema, item);
+        }
+
+        for (Map.Entry<String, Map<String, Map<String, Object>>> entry : dataGroup.entrySet()) {
+            Map<String, Object> d = entry.getValue().values().iterator().next(); // Get first item in the group
+            if (d != null) {
+                Map<String, Object> mediaInfo = buildMediaInfo(entry.getKey(), d);
+                if (mediaInfo != null) {
+                    data.add(mediaInfo);
+                }
+            }
+        }
+    }
+
+    private Map<String, Object> buildMediaInfo(String code, Map<String, Object> d) {
+        Map<String, Object> mediaInfo = new HashMap<>();
+
+        try {
+            String app = (String) d.get("app");
+            String stream = (String) d.get("stream");
+
+            mediaInfo.put("active", true);
+            mediaInfo.put("code", code);
+            mediaInfo.put("app", app);
+            mediaInfo.put("name", stream);
+            mediaInfo.put("flvUrl", getFlvUrl(app, stream));
+            mediaInfo.put("hlsUrl", getHlsUrl(app, stream));
+
+            List<Map<String, Object>> tracks = (List<Map<String, Object>>) d.get("tracks");
+            if (tracks != null) {
+                for (Map<String, Object> track : tracks) {
+                    int codecType = (int) track.get("codec_type");
+                    if (codecType == 0) { // Video
+                        mediaInfo.put("video", formatTrackInfo(track));
+                    } else if (codecType == 1) { // Audio
+                        mediaInfo.put("audio", formatTrackInfo(track));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error building media info: {}", e.getMessage(), e);
+        }
+
+        return mediaInfo;
+    }
+
+    private String formatTrackInfo(Map<String, Object> track) {
+        try {
+            String codecName = (String) track.get("codec_id_name");
+            if (track.get("fps") != null) {
+                return String.format("%s/%s fps", codecName, track.get("fps"));
+            }
+            return codecName;
+        } catch (Exception e) {
+            log.warn("Error formatting track info: {}", e.getMessage(), e);
+            return "Unknown";
+        }
+    }
+
+    private String sendRequest(String url, String action) {
+        try {
+            Request request = new Request.Builder()
+                    .url(url)
+                    .addHeader("User-Agent", "Mozilla/5.0")
+                    .build();
+
+            try (Response response = client.newCall(request).execute()) {
+                if (response.isSuccessful()) {
+                    return response.body().string();
+                } else {
+                    log.warn("{} request failed. Status code: {}", action, response.code());
+                }
+            }
+        } catch (Exception e) {
+            log.error("{} request failed: {}", action, e.getMessage(), e);
+        }
+        return null;
+    }
+}
+
