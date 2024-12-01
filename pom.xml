@@ -216,6 +216,7 @@
                 <version>${ruoyi.version}</version>
             </dependency>
 
+
             <!-- 业务模块-->
             <dependency>
                 <groupId>com.ruoyi</groupId>
