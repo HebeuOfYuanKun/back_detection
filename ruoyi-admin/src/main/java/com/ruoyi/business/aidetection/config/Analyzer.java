@@ -351,7 +351,7 @@ public class Analyzer {
      */
     public Map<String, Object> controlAdd(String code, String algorithmCode, String objects, String objectCode,
                                           Long minInterval, double classThresh, double overlapThresh,
-                                          String streamUrl, Long pushStream, String pushStreamUrl) {
+                                          String streamUrl, Long pushStream, String pushStreamUrl, String recognitionRegion) {
 
         JSONObject requestData = createSafeJson();
         try {
@@ -364,6 +364,7 @@ public class Analyzer {
             requestData.put("overlapThresh", overlapThresh);
             requestData.put("streamUrl", streamUrl);
             requestData.put("pushStream", pushStream == 1);
+            requestData.put("recognitionRegion", recognitionRegion);//算法识别区域坐标点 x1, y1, x2, y2, x3, y3, x4, y4
             requestData.put("pushStreamUrl", pushStreamUrl);
         } catch (Exception e) {
             log.error("Error creating JSON for controlAdd: {}", e.getMessage(), e);

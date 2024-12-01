@@ -91,6 +91,11 @@ public class AvControl extends BaseEntity {
     private Long minInterval;
 
     /**
+     * 最小报警时间间隔
+     */
+    @Excel(name = "识别区域")
+    private String recognitionRegion;
+    /**
      * 置信度
      */
     @Excel(name = "置信度")

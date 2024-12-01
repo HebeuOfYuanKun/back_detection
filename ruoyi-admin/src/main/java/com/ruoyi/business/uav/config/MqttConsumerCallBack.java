@@ -139,7 +139,7 @@ public class MqttConsumerCallBack implements MqttCallbackExtended {
                     }
                     Map<String, Object> map = analyzer.controlAdd(avControlVo.getCode(), avControlVo.getAlgorithmCode(),avAlgorithmVo.getObjects(), avControlVo.getObjectCode(), avControlVo.getMinInterval(),
                             avControlVo.getClassThresh(), avControlVo.getOverlapThresh(), zlMediaKit.getRtspUrl(avControlVo.getStreamApp(), avControlVo.getStreamName()),
-                            avControlVo.getPushStream(), zlMediaKit.getRtspUrl(avControlVo.getPushStreamApp(), avControlVo.getPushStreamName()));
+                            avControlVo.getPushStream(), zlMediaKit.getRtspUrl(avControlVo.getPushStreamApp(), avControlVo.getPushStreamName()), avControlVo.getRecognitionRegion());
 
                     if("200".equals(map.get("code").toString()))
                         avControlVo.setState(1L);

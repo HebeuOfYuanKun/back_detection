@@ -9,8 +9,8 @@
 
 总共有四大模块：视频分析模块（C++）、后端服务模块（基于若依）、流媒体服务模块、前端展示模块（Vue）
 
-项目运行，git克隆后，先下载依赖，jdk版本是1.8，然后Maven里面点击下面图片这个,先点击1，然后点击2，确保ruoyi-admin目录下面pd文件夹中有内容，如果没有就多clean几遍。
-![图片](images/img_2.png)![图片](images/img_3.png)
+项目运行，git克隆后，先下载依赖，jdk版本是1.8，然后Maven里面点击下面图片这个,先点击1，然后点击2，确保ruoyi-admin目录下面pd文件夹中有内容，如果没有就多clean几遍,然后点击install后，会发现admin/target目录下生成了jar包，然后运行右键运行即可
+![图片](images/img_2.png)![图片](images/img_3.png)![图片](images/img_4.png)![图片](images/img_5.png)![图片](images/img_6.png)
 
 项目运行所需要的环境：MySQL5.7（我用的5.7，其他版本自测）、Redis
 
