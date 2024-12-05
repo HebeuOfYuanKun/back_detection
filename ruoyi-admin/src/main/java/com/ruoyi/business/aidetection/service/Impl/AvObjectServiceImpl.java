@@ -8,6 +8,7 @@ import com.ruoyi.business.aidetection.mapper.AvObjectMapper;
 import com.ruoyi.business.aidetection.service.AvObjectService;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.PageUtils;
+import com.ruoyi.common.utils.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class AvObjectServiceImpl extends ServiceImpl<AvObjectMapper, AvObject> i
     @Override
     public TableDataInfo<AvObject> queryList(AvObjectVo entity) {
         QueryWrapper<AvObject> queryWrapper=new QueryWrapper<>();
-        if(entity.getName()!=null)
+        if(!StringUtils.isBlank(entity.getName()))
             queryWrapper.eq("name",entity.getName());
         if(entity.getGrade()!=null)
             queryWrapper.eq("grade",entity.getGrade());
