@@ -288,6 +288,7 @@ public class Analyzer {
 }*/
 package com.ruoyi.business.aidetection.config;
 
+import com.ruoyi.business.aidetection.domain.vo.AvControlAddVo;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -349,23 +350,22 @@ public class Analyzer {
     /**
      * 添加控制信息
      */
-    public Map<String, Object> controlAdd(String code, String algorithmCode, String objects, String objectCode,
-                                          Long minInterval, double classThresh, double overlapThresh,
-                                          String streamUrl, Long pushStream, String pushStreamUrl, String recognitionRegion) {
+    public Map<String, Object> controlAdd(AvControlAddVo avControlAddVo) {
 
         JSONObject requestData = createSafeJson();
         try {
-            requestData.put("code", code);
-            requestData.put("objects", objects);
-            requestData.put("algorithmCode", algorithmCode);
-            requestData.put("objectCode", objectCode);
-            requestData.put("minInterval", minInterval);
-            requestData.put("classThresh", classThresh);
-            requestData.put("overlapThresh", overlapThresh);
-            requestData.put("streamUrl", streamUrl);
-            requestData.put("pushStream", pushStream == 1);
-            requestData.put("recognitionRegion", recognitionRegion);//算法识别区域坐标点 x1, y1, x2, y2, x3, y3, x4, y4
-            requestData.put("pushStreamUrl", pushStreamUrl);
+            requestData.put("code", avControlAddVo.getCode());
+            requestData.put("objects", avControlAddVo.getObjects());
+            requestData.put("algorithmCode", avControlAddVo.getAlgorithmCode());
+            requestData.put("alarmObject", avControlAddVo.getObjectCode());
+            requestData.put("modelCode", avControlAddVo.getModelCode());
+            requestData.put("minInterval", avControlAddVo.getMinInterval());
+            requestData.put("classThresh", avControlAddVo.getClassThresh());
+            requestData.put("overlapThresh", avControlAddVo.getOverlapThresh());
+            requestData.put("streamUrl", avControlAddVo.getStreamUrl());
+            requestData.put("pushStream", avControlAddVo.getPushStream() == 1L);
+            requestData.put("recognitionRegion", avControlAddVo.getRecognitionRegion());//算法识别区域坐标点 x1, y1, x2, y2, x3, y3, x4, y4
+            requestData.put("pushStreamUrl", avControlAddVo.getPushStreamUrl());
         } catch (Exception e) {
             log.error("Error creating JSON for controlAdd: {}", e.getMessage(), e);
             return createErrorResponse("Failed to create JSON for controlAdd request");

@@ -7,6 +7,7 @@ import com.ruoyi.business.aidetection.config.Analyzer;
 import com.ruoyi.business.aidetection.config.ZLMediaKit;
 import com.ruoyi.business.aidetection.domain.AvControl;
 import com.ruoyi.business.aidetection.domain.vo.AvAlgorithmVo;
+import com.ruoyi.business.aidetection.domain.vo.AvControlAddVo;
 import com.ruoyi.business.aidetection.service.AvAlgorithmService;
 import com.ruoyi.business.aidetection.service.AvControlService;
 import com.ruoyi.business.uav.domain.UavConfig;
@@ -137,10 +138,21 @@ public class MqttConsumerCallBack implements MqttCallbackExtended {
                     if(avAlgorithmVo.getObjects()==null||avAlgorithmVo.getObjects().length()==0){
                         break;
                     }
-                    Map<String, Object> map = analyzer.controlAdd(avControlVo.getCode(), avControlVo.getAlgorithmCode(),avAlgorithmVo.getObjects(), avControlVo.getObjectCode(), avControlVo.getMinInterval(),
-                            avControlVo.getClassThresh(), avControlVo.getOverlapThresh(), zlMediaKit.getRtspUrl(avControlVo.getStreamApp(), avControlVo.getStreamName()),
-                            avControlVo.getPushStream(), zlMediaKit.getRtspUrl(avControlVo.getPushStreamApp(), avControlVo.getPushStreamName()), avControlVo.getRecognitionRegion());
+                    AvControlAddVo avControlAddVo = new AvControlAddVo();
+                    avControlAddVo.setCode(avControlVo.getCode());
+                    avControlAddVo.setAlgorithmCode(avAlgorithmVo.getAlgorithmCode());
+                    avControlAddVo.setObjects(avAlgorithmVo.getObjects());
+                    avControlAddVo.setObjectCode(avAlgorithmVo.getObjects());
+                    avControlAddVo.setMinInterval(avControlVo.getMinInterval());
+                    avControlAddVo.setClassThresh(avControlVo.getClassThresh());
+                    avControlAddVo.setOverlapThresh(avControlVo.getOverlapThresh());
+                    avControlAddVo.setStreamUrl(zlMediaKit.getRtspUrl(avControlVo.getStreamApp(), avControlVo.getStreamName()));
+                    avControlAddVo.setPushStream(avControlVo.getPushStream());
+                    avControlAddVo.setPushStreamUrl(zlMediaKit.getRtspUrl(avControlVo.getPushStreamApp(), avControlVo.getPushStreamName()));
+                    avControlAddVo.setRecognitionRegion(avControlVo.getRecognitionRegion());
+                    avControlAddVo.setModelCode(avAlgorithmVo.getModelCode());
 
+                    Map<String, Object> map = analyzer.controlAdd(avControlAddVo);
                     if("200".equals(map.get("code").toString()))
                         avControlVo.setState(1L);
                     avControlService.updateById(avControlVo);

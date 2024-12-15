@@ -11,6 +11,9 @@ import com.ruoyi.common.utils.PageUtils;
 import com.ruoyi.common.utils.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -40,5 +43,27 @@ public class AvObjectServiceImpl extends ServiceImpl<AvObjectMapper, AvObject> i
     @Override
     public AvObjectVo queryById(Long id) {
         return baseMapper.queryById(id);
+    }
+
+
+    @Override
+    public AvObject queryByObjectCode(String objectCode) {
+        QueryWrapper<AvObject> queryWrapper=new QueryWrapper<>();
+        queryWrapper.eq("code",objectCode);
+        AvObject avObject=getOne(queryWrapper,false);
+        return avObject;
+    }
+
+    @Override
+    public List<AvObject> queryByObjectCodes(List<String> objectCodes) {
+        List<AvObject> avObjects=new ArrayList<>();
+        for(String objectCode:objectCodes){
+            QueryWrapper<AvObject> queryWrapper=new QueryWrapper<>();
+            queryWrapper.eq("code",objectCode);
+            AvObject avObject=getOne(queryWrapper,false);
+            if(avObject!=null)
+                avObjects.add(avObject);
+        }
+        return avObjects;
     }
 }

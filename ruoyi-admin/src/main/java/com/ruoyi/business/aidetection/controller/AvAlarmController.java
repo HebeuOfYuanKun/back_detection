@@ -84,7 +84,8 @@ public class AvAlarmController extends BaseController {
         QueryWrapper<AvObject> queryWrapper=new QueryWrapper<>();
         queryWrapper.eq("code",entity.getCategory());
         AvObject avObject = avObjectService.getOne(queryWrapper);
-        entity.setDesc(avObject.getTipMessage());
+
+        entity.setRemark(avObject.getTipMessage());
         entity.setGrade(avObject.getGrade());
         entity.setState(1L);
         WebSocketUsers.sendMessageToUsersByText(String.valueOf(entity));

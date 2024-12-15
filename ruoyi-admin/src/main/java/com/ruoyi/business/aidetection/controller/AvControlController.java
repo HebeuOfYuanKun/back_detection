@@ -4,10 +4,13 @@ import com.ruoyi.business.aidetection.config.Analyzer;
 import com.ruoyi.business.aidetection.config.ZLMediaKit;
 import com.ruoyi.business.aidetection.domain.AvAlarm;
 import com.ruoyi.business.aidetection.domain.AvControl;
+import com.ruoyi.business.aidetection.domain.AvObject;
 import com.ruoyi.business.aidetection.domain.vo.AvAlgorithmVo;
+import com.ruoyi.business.aidetection.domain.vo.AvControlAddVo;
 import com.ruoyi.business.aidetection.domain.vo.AvControlVo;
 import com.ruoyi.business.aidetection.service.AvAlgorithmService;
 import com.ruoyi.business.aidetection.service.AvControlService;
+import com.ruoyi.business.aidetection.service.AvObjectService;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -42,6 +45,8 @@ import java.util.Map;
 public class AvControlController extends BaseController {
     @Autowired
     private AvControlService avControlService;
+    @Autowired
+    private AvObjectService avObjectService;
     @Autowired
     private AvAlgorithmService avAlgorithmService;
     @Autowired
@@ -105,11 +110,43 @@ public class AvControlController extends BaseController {
         AvControl avControlVo = avControlService.getById(id);
         AvAlgorithmVo avAlgorithmVo = avAlgorithmService.queryByAlgorithmCode(avControlVo.getAlgorithmCode());
         if(avAlgorithmVo.getObjects()==null||avAlgorithmVo.getObjects().length()==0){
-            return AjaxResult.error("布控出错，没有相应的算法");
+            return AjaxResult.error("布控出错，没有相应的算法！");
         }
-        Map<String, Object> map = analyzer.controlAdd(avControlVo.getCode(), avControlVo.getAlgorithmCode(),avAlgorithmVo.getObjects(), avControlVo.getObjectCode(), avControlVo.getMinInterval(),
-                avControlVo.getClassThresh(), avControlVo.getOverlapThresh(), zlMediaKit.getRtspUrl(avControlVo.getStreamApp(), avControlVo.getStreamName()),
-                avControlVo.getPushStream(), zlMediaKit.getRtspUrl(avControlVo.getPushStreamApp(), avControlVo.getPushStreamName()),avControlVo.getRecognitionRegion());
+        //根据avAlgorithmVo的识别物体码查找到预警等级拼接起来
+        List<String> objects = Arrays.asList(avAlgorithmVo.getObjects().split(","));
+        List<String> alarmObject = Arrays.asList(avControlVo.getObjectCode().split(","));
+        String objectCode = "";
+        for(String object:objects){
+            AvObject avObject = avObjectService.queryByObjectCode(object);
+            Long grade = 0L;
+            for (String alarm : alarmObject) {
+                if(alarm.equals(object)){
+                    grade =avObject.getGrade();
+                }
+            }
+            if(objectCode==""){
+                objectCode =objectCode+ object+","+grade;
+            }else{
+                objectCode =objectCode+","+ object+","+grade;
+            }
+        }
+        System.out.println(objectCode);
+
+        AvControlAddVo avControlAddVo = new AvControlAddVo();
+        avControlAddVo.setCode(avControlVo.getCode());
+        avControlAddVo.setAlgorithmCode(avAlgorithmVo.getAlgorithmCode());
+        avControlAddVo.setObjects(objectCode);
+        avControlAddVo.setObjectCode(avControlVo.getObjectCode());
+        avControlAddVo.setMinInterval(avControlVo.getMinInterval());
+        avControlAddVo.setClassThresh(avControlVo.getClassThresh());
+        avControlAddVo.setOverlapThresh(avControlVo.getOverlapThresh());
+        avControlAddVo.setStreamUrl(zlMediaKit.getRtspUrl(avControlVo.getStreamApp(), avControlVo.getStreamName()));
+        avControlAddVo.setPushStream(avControlVo.getPushStream());
+        avControlAddVo.setPushStreamUrl(zlMediaKit.getRtspUrl(avControlVo.getPushStreamApp(), avControlVo.getPushStreamName()));
+        avControlAddVo.setRecognitionRegion(avControlVo.getRecognitionRegion());
+        avControlAddVo.setModelCode(avAlgorithmVo.getModelCode());
+
+        Map<String, Object> map = analyzer.controlAdd(avControlAddVo);
 
         if("200".equals(map.get("code").toString())){
             avControlVo.setState(1L);
@@ -126,13 +163,16 @@ public class AvControlController extends BaseController {
     @PreAuthorize("@ss.hasPermi('business:control:cancel')")
     @Log(title = "detection", businessType = BusinessType.INSERT)
     @DeleteMapping("detection/{id}")
-    public Map<String, Object> deleteDetection(@PathVariable("id") Long id) {
+    public AjaxResult deleteDetection(@PathVariable("id") Long id) {
         AvControl avControlVo = avControlService.getById(id);
         Map<String, Object> map = analyzer.controlCancel(avControlVo.getCode());
-        if("200".equals(map.get("code").toString()))
+        if("200".equals(map.get("code").toString())){
             avControlVo.setState(0L);
-        avControlService.updateById(avControlVo);
-        return map;
+            avControlService.updateById(avControlVo);
+            return AjaxResult.success("取消识别成功");
+        }
+        return AjaxResult.error(map.get("msg").toString());
+
     }
 
 

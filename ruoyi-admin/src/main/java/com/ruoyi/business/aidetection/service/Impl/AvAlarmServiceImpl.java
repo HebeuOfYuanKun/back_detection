@@ -61,7 +61,7 @@ public class AvAlarmServiceImpl extends ServiceImpl<AvAlarmMapper, AvAlarm> impl
     }
 
     @Override
-    public AvAlarmVo queryById(Long id) {
-        return this.baseMapper.queryById(id);
+    public AvAlarm queryById(Long id) {
+        return baseMapper.selectById(id);
     }
 }

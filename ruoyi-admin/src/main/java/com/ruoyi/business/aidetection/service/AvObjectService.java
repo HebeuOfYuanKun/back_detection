@@ -40,4 +40,20 @@ public interface AvObjectService extends IService<AvObject> {
      * @return
      */
     AvObjectVo queryById(Long id);
+
+
+    /**
+     * 根据对象编码查询对象信息。
+     *
+     * @param objectCode 对象编码
+     * @return 返回包含对象信息的 AvObjectVo 对象
+     */
+    AvObject queryByObjectCode(String objectCode);
+    /**
+     * 根据对象编码查询对象信息。
+     *
+     * @param objectCode 对象编码
+     * @return 返回包含对象信息的 AvObjectVo 对象
+     */
+    List<AvObject> queryByObjectCodes(List<String> objectCode);
 }

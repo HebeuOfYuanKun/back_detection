@@ -40,5 +40,5 @@ public interface AvAlarmService extends IService<AvAlarm> {
      * @param id
      * @return
      */
-    AvAlarmVo queryById(Long id);
+    AvAlarm queryById(Long id);
 }
